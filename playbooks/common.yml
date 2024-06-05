@@ -8,6 +8,16 @@
         name: wireshark
         state: latest
    
+     - name: Install Nginx
+      yum:
+        name: nginx
+        state: present
+
+    - name: Start and enable Nginx service
+      systemd:
+        name: nginx
+        state: started
+        enabled: yes
 
 - name: update Load balancer and db
   hosts: lb, db
@@ -21,3 +31,14 @@
       apt:
         name: wireshark
         state: latest
+
+           - name: Install Nginx
+      apt:
+        name: nginx
+        state: present
+
+    - name: Start and enable Nginx service
+      systemd:
+        name: nginx
+        state: started
+        enabled: yes
