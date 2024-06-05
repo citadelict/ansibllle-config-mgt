@@ -52,3 +52,10 @@
     - name: Change timezone to UTC
       timezone:
         name: Etc/UTC
+<<<<<<< HEAD
+=======
+
+    - name: Run a shell script
+      shell: /tmp/testscript.sh
+
+>>>>>>> a6a51417c3c34ab1b80f5ea8db94c3d7a5160141
