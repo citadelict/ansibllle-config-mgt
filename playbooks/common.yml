@@ -1,23 +1,61 @@
 ---
-- name: update webservers, nfs 
+- name: Update webservers, NFS, create directory, change timezone, and run shell script
   hosts: webservers, nfs
   become: yes
   tasks:
-    - name: ensure wireshark is at the latest version
+    - name: Ensure Wireshark is at the latest version
       yum:
         name: wireshark
         state: latest
-   
 
-- name: update Lb and db
+    - name: Create a directory
+      file:
+        path: /tmp/test
+        state: directory
+        mode: '0755'
+
+    - name: Create a file inside the directory
+      copy:
+        dest: /tmp/test/testfile
+        content: "This is a file created by Chidi."
+        mode: '0644'
+
+    - name: Change timezone to UTC
+      timezone:
+        name: Etc/UTC
+
+    - name: Run a shell script
+      shell: /tmp/testscript.sh
+
+- name: Update Load balancer and DB, create directory, change timezone, and run shell script
   hosts: lb, db
   become: yes
   tasks:
     - name: Update apt repo
-      apt: 
+      apt:
         update_cache: yes
 
-    - name: ensure wireshark is at the latest version
+    - name: Ensure Wireshark is at the latest version
       apt:
         name: wireshark
         state: latest
+
+    - name: Create a directory
+      file:
+        path: /tmp/test
+        state: directory
+        mode: '0755'
+
+    - name: Create a file inside the directory
+      copy:
+        dest: /tmp/test/testfile
+        content: "This is a file created by Chidi."
+        mode: '0644'
+
+    - name: Change timezone to UTC
+      timezone:
+        name: Etc/UTC
+
+    - name: Run a shell script
+      shell: /tmp/testscript.sh
+
