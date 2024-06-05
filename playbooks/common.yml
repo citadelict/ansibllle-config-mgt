@@ -1,5 +1,5 @@
 ---
-- name: Update webservers, NFS, create directory, change timezone, and run shell script
+- name: Update webservers, NFS, create directory, change timezone
   hosts: webservers, nfs
   become: yes
   tasks:
@@ -10,24 +10,21 @@
 
     - name: Create a directory
       file:
-        path: /tmp/test
+        path: /tmp/testdir
         state: directory
         mode: '0755'
 
     - name: Create a file inside the directory
       copy:
-        dest: /tmp/test/testfile
-        content: "This is a file created by Chidi."
+        dest: /tmp/testdir/testfile
+        content: "This is a file created by Ansible."
         mode: '0644'
 
     - name: Change timezone to UTC
       timezone:
         name: Etc/UTC
 
-    - name: Run a shell script
-      shell: /tmp/testscript.sh
-
-- name: Update Load balancer and DB, create directory, change timezone, and run shell script
+- name: Update Load balancer and DB, create directory, change timezone
   hosts: lb, db
   become: yes
   tasks:
@@ -42,20 +39,23 @@
 
     - name: Create a directory
       file:
-        path: /tmp/test
+        path: /tmp/testdir
         state: directory
         mode: '0755'
 
     - name: Create a file inside the directory
       copy:
-        dest: /tmp/test/testfile
-        content: "This is a file created by Chidi."
+        dest: /tmp/testdir/testfile
+        content: "This is a file created by Ansible."
         mode: '0644'
 
     - name: Change timezone to UTC
       timezone:
         name: Etc/UTC
+<<<<<<< HEAD
+=======
 
     - name: Run a shell script
       shell: /tmp/testscript.sh
 
+>>>>>>> a6a51417c3c34ab1b80f5ea8db94c3d7a5160141
