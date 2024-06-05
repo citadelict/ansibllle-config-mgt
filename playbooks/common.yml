@@ -9,7 +9,7 @@
         state: latest
    
 
-- name: update Load balancer and db
+- name: update Lb and db
   hosts: lb, db
   become: yes
   tasks:
