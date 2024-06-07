@@ -11,14 +11,14 @@
       state: removed
 
 - name: update LB and db servers
-  hosts: lb,db
+  hosts: lb, db
   remote_user: ubuntu
   become: yes
   become_user: root
   tasks:
   - name: delete wireshark
     apt:
-      name: wireshark-qt
+      name: wireshark
       state: absent
       autoremove: yes
       purge: yes
