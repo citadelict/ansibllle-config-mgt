@@ -6,11 +6,11 @@
       tags:
         - always
 
-#- import_playbook: ../static-assignments/common.yml
+# - import_playbook: ../static-assignments/common.yml
 
-#- import_playbook: ../static-assignments/webservers.yml
+# - import_playbook: ../static-assignments/webservers.yml
 
 - import_playbook: ../static-assignments/loadbalancers.yml
   vars:
-    load_balancer_is_required: true  # You can set this based on your environment or dynamically include it
+    load_balancer_is_required: true
   when: load_balancer_is_required
