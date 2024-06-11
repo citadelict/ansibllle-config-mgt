@@ -7,8 +7,8 @@
         - always
 
 - name: Webserver assignment
-  hosts: webservers
-  import_playbook: ../static-assignments/webservers.yml
+  hosts: uat-webservers
+  import_playbook: ../static-assignments/uat-webservers.yml
 
 - name: Loadbalancers assignment
   hosts: lb
