@@ -1,31 +1,19 @@
 ---
-- name: Include dynamic variables
-  hosts: all
+- hosts: all
+  name: Include dynamic variables 
   tasks:
-    - name: Include environment variables
-      include_vars: "{{ item }}"
-      with_first_found:
-        - files:
-            - dev.yml
-            - stage.yml
-            - prod.yml
-            - uat.yml
-          paths:
-            - "{{ playbook_dir }}/../env-vars"
+    - import_playbook: ../static-assignments/common.yml 
+    - include: ../dynamic-assignments/env-vars.yml
       tags:
         - always
 
-- import_playbook: ../static-assignments/common.yml
-- import_playbook: ../static-assignments/webservers.yml
+- hosts: webservers
+  name: Webserver assignment
+  tasks:
+    - import_playbook: ../static-assignments/webservers.yml
 
 - name: Loadbalancers assignment
   hosts: lb
   tasks:
-    - name: Include loadbalancers tasks
-      include_tasks: ../static-assignments/loadbalancers.yml
+    - import_playbook: ../static-assignments/loadbalancers.yml
       when: load_balancer_is_required
-
-- hosts: db-servers
-  become: yes
-  roles:
-    - mysql
