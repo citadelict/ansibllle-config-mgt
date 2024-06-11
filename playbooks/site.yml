@@ -1,16 +1,29 @@
-ubuntu@ip-172-31-8-16:~/ansible-config-artifact$ ansible-playbook -i inventory/uat.yml playbooks/site.yml
-[WARNING]: Invalid characters were found in group names but not replaced, use -vvvv to see details
-ERROR! this task 'import_playbook' has extra params, which is only allowed in the following modules: ansible.builtin.include_vars, script, ansible.legacy.win_command, ansible.builtin.include, ansible.legacy.set_fact, ansible.legacy.raw, ansible.legacy.command, ansible.builtin.shell, ansible.builtin.win_command, set_fact, win_command, ansible.legacy.include, ansible.builtin.command, ansible.builtin.meta, ansible.builtin.set_fact, ansible.legacy.include_tasks, ansible.builtin.add_host, ansible.builtin.import_role, include, include_role, add_host, group_by, ansible.legacy.group_by, raw, ansible.legacy.include_role, ansible.legacy.add_host, ansible.legacy.include_vars, ansible.legacy.import_role, ansible.builtin.group_by, ansible.builtin.include_role, ansible.builtin.win_shell, ansible.legacy.script, ansible.windows.win_shell, import_role, ansible.windows.win_command, ansible.builtin.import_tasks, ansible.legacy.shell, ansible.legacy.win_shell, ansible.legacy.meta, meta, include_tasks, ansible.builtin.script, import_tasks, include_vars, command, shell, ansible.builtin.include_tasks, win_shell, ansible.builtin.raw, 
-ansible.legacy.import_tasks
-
-The error appears to be in '/home/ubuntu/ansible-config-artifact/playbooks/site.yml': line 5, column 7, but may
-be elsewhere in the file depending on the exact syntax problem.
-
-The offending line appears to be:
-
+---
+- name: Include dynamic variables
+  hosts: all
   tasks:
     - name: Include environment variables
-      ^ here
+      include_vars:
+        dir: "{{ playbook_dir }}/../env-vars"
+        files:
+          - dev.yml
+          - stage.yml
+          - prod.yml
+          - uat.yml
+      tags:
+        - always
 
-ubuntu@ip-172-31-8-16:~/ansible-config-artifact$ 
-ubuntu@ip-172-31-8-16:~/ansible-config-artifact$ 
+- import_playbook: ../static-assignments/common.yml
+- import_playbook: ../static-assignments/webservers.yml
+
+- name: Loadbalancers assignment
+  hosts: lb
+  tasks:
+    - name: Include loadbalancers tasks
+      include_tasks: ../static-assignments/loadbalancers.yml
+      when: load_balancer_is_required
+
+- hosts: db-servers
+  become: yes
+  roles:
+    - mysql
