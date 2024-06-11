@@ -14,7 +14,7 @@
   hosts: lb
   tasks:
     - name: Include loadbalancers playbook
-      import_playbook: ../static-assignments/loadbalancers.yml
+    - import_playbook: ../static-assignments/loadbalancers.yml
       when: load_balancer_is_required
 
 - hosts: db-servers
