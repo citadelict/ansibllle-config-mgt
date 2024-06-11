@@ -1,14 +1,13 @@
-# playbooks/site.yml
 ---
-- hosts: all
-  name: Include dynamic variables
+- name: Include dynamic variables
+  hosts: all
   tasks:
     - include: ../dynamic-assignments/env-vars.yml
       tags:
         - always
 
-- hosts: webservers
-  name: Webserver assignment
+- name: Webserver assignment
+  hosts: webservers
   import_playbook: ../static-assignments/webservers.yml
 
 - name: Loadbalancers assignment
