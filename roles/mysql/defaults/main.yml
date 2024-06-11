@@ -1,4 +1,3 @@
-nano /home/ubuntu/ansible-config-artifact/roles/mysql/defaults/main.yml
 # Set this to the user ansible is logging in as - should have root
 # or sudo access
 mysql_user_home: /root
@@ -106,14 +105,14 @@ mysql_config_include_files: []
 #  - { src: path/relative/to/playbook/anotherfile.cnf, force: yes }
 
 # Databases.
-mysql_databases: []
+mysql_databases:
   - name: tooling
     collation: utf8_general_ci
     encoding: utf8
     replicate: 1
 
 # Users.
-mysql_users: []
+mysql_users:
   - name: admin
     host: 127.0.0.1
     password: admin
