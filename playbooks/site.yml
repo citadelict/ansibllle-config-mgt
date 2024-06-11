@@ -3,7 +3,7 @@
   hosts: all
   tasks:
     - name: Include environment variables
-      include_vars: ../dynamic-assignments/env-vars.yml
+      import_playbook: "../dynamic-assignments/env-vars.yml"
       tags:
         - always
 
