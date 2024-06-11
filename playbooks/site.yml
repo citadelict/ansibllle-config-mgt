@@ -3,7 +3,13 @@
   hosts: all
   tasks:
     - name: Include environment variables
-      import_playbook: "../dynamic-assignments/env-vars.yml"
+      include_vars:
+        dir: "{{ playbook_dir }}/../env-vars"
+        files:
+          - dev.yml
+          - stage.yml
+          - prod.yml
+          - uat.yml
       tags:
         - always
 
