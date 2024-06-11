@@ -3,7 +3,7 @@ nano /home/ubuntu/ansible-config-artifact/roles/mysql/defaults/main.yml
 # or sudo access
 mysql_user_home: /root
 mysql_user_name: root
-mysql_user_password: root
+mysql_user_password: admin
 
 # The default root user installed by mysql - almost always root
 mysql_root_home: /root
