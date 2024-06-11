@@ -3,13 +3,15 @@
   hosts: all
   tasks:
     - name: Include environment variables
-      include_vars:
-        dir: "{{ playbook_dir }}/../env-vars"
-        files:
-          - dev.yml
-          - stage.yml
-          - prod.yml
-          - uat.yml
+      include_vars: "{{ item }}"
+      with_first_found:
+        - files:
+            - dev.yml
+            - stage.yml
+            - prod.yml
+            - uat.yml
+          paths:
+            - "{{ playbook_dir }}/../env-vars"
       tags:
         - always
 
