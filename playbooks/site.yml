@@ -5,13 +5,17 @@
     - include_vars: ../dynamic-assignments/env-vars.yml
       tags:
         - always
-    - import_playbook: ../static-assignments/common.yml
 
-- hosts: webservers
-  name: Webserver assignment
-  import_playbook: ../static-assignments/webservers.yml
+- import_playbook: ../static-assignments/common.yml
 
-- name: Loadbalancers assignment
-  hosts: lb
+- import_playbook: ../static-assignments/webservers.yml
+
+- hosts: lb
+  name: Loadbalancers assignment
   import_playbook: ../static-assignments/loadbalancers.yml
   when: load_balancer_is_required
+
+- hosts: db-servers
+  become: yes
+  roles:
+    - mysql
