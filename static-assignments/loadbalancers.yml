@@ -1,4 +1,5 @@
 # static-assignments/loadbalancers.yml
+---
 - hosts: lb
   roles:
     - { role: nginx, when: enable_nginx_lb and load_balancer_is_required }
