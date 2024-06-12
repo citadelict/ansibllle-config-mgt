@@ -1,39 +1,25 @@
 ---
-- name: Install and Configure Nginx
-  become: true
-  tasks:
-    - name: Install Nginx package
-      ansible.builtin.package:
-        name: nginx
-        state: present
+- name: Install Nginx package
+  ansible.builtin.package:
+    name: nginx
+    state: present
 
-    - name: Copy Nginx configuration file
-      ansible.builtin.copy:
-        src: /path/to/nginx.conf
-        dest: /etc/nginx/nginx.conf
+- name: Install Git
+  ansible.builtin.yum:
+    name: "git"
+    state: present
 
-- name: Install Git and Clone Repo
-  become: true
-  tasks:
-    - name: Install Git
-      ansible.builtin.yum:
-        name: "git"
-        state: present
+- name: Clone a repo
+  ansible.builtin.git:
+    repo: https://github.com/citadelict/tooling2.git
+    dest: /var/www/html
+    force: yes
 
-    - name: Clone a repo
-      ansible.builtin.git:
-        repo: https://github.com/citadelict/tooling2.git
-        dest: /var/www/html
-        force: yes
+- name: Copy HTML content to one level up
+  ansible.builtin.command:
+    cmd: cp -r /var/www/html/html/ /var/www/
 
-- name: Copy HTML content and Remove Directory
-  become: true
-  tasks:
-    - name: Copy HTML content to one level up
-      ansible.builtin.command:
-        cmd: cp -r /var/www/html/html/ /var/www/
-
-    - name: Recursively remove /var/www/html/html/ directory
-      ansible.builtin.file:
-        path: /var/www/html/html
-        state: absent
+- name: Recursively remove /var/www/html/html/ directory
+  ansible.builtin.file:
+    path: /var/www/html/html
+    state: absent
