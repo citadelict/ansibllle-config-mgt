@@ -1,21 +1,14 @@
 ---
 - name: Include dynamic variables
   hosts: all
-  vars_prompt:
-    - name: env_type
-      prompt: "Enter environment type (dev, prod, uat, staging)"
-      private: no
   tasks:
-    - name: Include environment-specific variables
-      include_vars:
-        file: "{{ playbook_dir }}/../env-vars/{{ env_type }}.yml"
+    - include_vars: "../dynamic-assignments/env-vars.yml"
+      tags:
+        - always
 
-- name: Loadbalancers assignment
-  hosts: all
-  tasks:
-    - name: Conditionally import Load Balancers playbook
-      import_playbook: "../static-assignments/loadbalancers.yml"
-      when: load_balancer_is_required
+
+- import_playbook: "../static-assignments/loadbalancers.yml"
+  when: load_balancer_is_required
 
 # Uncomment and modify the following sections as per the above example when ready to use
 # - name: Webserver assignment
