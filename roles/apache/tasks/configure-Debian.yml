@@ -8,6 +8,7 @@
     mode: 0644
   with_items: "{{ apache_ports_configuration_items }}"
   notify: restart apache
+  become: yes
 
 - name: Enable Apache mods.
   file:
@@ -19,18 +20,18 @@
   notify: restart 
   become: yes
 
-- name: Disable Apache mods.
-  file:
-    path: "{{ apache_server_root }}/mods-enabled/{{ item }}.load"
-    state: absent
-  with_items: "{{ apache_mods_disabled }}"
-  notify: restart apache
+# - name: Disable Apache mods.
+#   file:
+#     path: "{{ apache_server_root }}/mods-enabled/{{ item }}.load"
+#     state: absent
+#   with_items: "{{ apache_mods_disabled }}"
+#   notify: restart apache
 
-- name: Check whether certificates defined in vhosts exist.
-  stat: "path={{ item.certificate_file }}"
-  register: apache_ssl_certificates
-  with_items: "{{ apache_vhosts_ssl }}"
-  no_log: "{{ apache_ssl_no_log }}"
+# - name: Check whether certificates defined in vhosts exist.
+#   stat: "path={{ item.certificate_file }}"
+#   register: apache_ssl_certificates
+#   with_items: "{{ apache_vhosts_ssl }}"
+#   no_log: "{{ apache_ssl_no_log }}"
 
 - name: Add apache vhosts configuration.
   template:
@@ -42,19 +43,40 @@
   notify: restart apache
   when: apache_create_vhosts | bool
 
-- name: Add vhost symlink in sites-enabled.
-  file:
-    src: "{{ apache_conf_path }}/sites-available/{{ apache_vhosts_filename }}"
-    dest: "{{ apache_conf_path }}/sites-enabled/{{ apache_vhosts_filename }}"
-    state: link
-    mode: 0644
-    force: "{{ ansible_check_mode }}"
-  notify: restart apache
-  when: apache_create_vhosts | bool
+  # ansible.builtin.blockinfile:
+  #   path: /etc/apache2/sites-available/000-default.conf
+  #   marker: "# {mark} ANSIBLE MANAGED BLOCK - DO NOT EDIT"
+  #   block: |
+  #     <VirtualHost *:80>
+  #         # Existing configuration...
+          
+  #         # Add the following lines inside the VirtualHost tags
+  #         <Proxy "balancer://mycluster">
+  #            BalancerMember 172.31.92.49
+  #            ProxySet lbmethod=byrequests
+  #         </Proxy>
+          
+  #         ProxyPass "/" "balancer://mycluster/"
+  #         ProxyPassReverse "/" "balancer://mycluster/"
+  #     </VirtualHost>
+  
 
-- name: Remove default vhost in sites-enabled.
-  file:
-    path: "{{ apache_conf_path }}/sites-enabled/{{ apache_default_vhost_filename }}"
-    state: absent
-  notify: restart apache
-  when: apache_remove_default_vhost
+
+
+
+# - name: Add vhost symlink in sites-enabled.
+#   file:
+#     src: "{{ apache_conf_path }}/sites-available/{{ apache_vhosts_filename }}"
+#     dest: "{{ apache_conf_path }}/sites-enabled/{{ apache_vhosts_filename }}"
+#     state: link
+#     mode: 0644
+#     force: "{{ ansible_check_mode }}"
+#   notify: restart apache
+#   when: apache_create_vhosts | bool
+
+# - name: Remove default vhost in sites-enabled.
+#   file:
+#     path: "{{ apache_conf_path }}/sites-enabled/{{ apache_default_vhost_filename }}"
+#     state: absent
+#   notify: restart apache
+#   when: apache_remove_default_vhost
