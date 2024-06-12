@@ -1,6 +1,47 @@
 ---
-- name: Nginx
+- name: install apache
+  remote_user: ec2-user
   become: true
+  become_user: root
   ansible.builtin.yum:
-    name: nginx
+    name: "httpd"
+    state: present
+
+- name: install git
+  remote_user: ec2-user
+  become: true
+  become_user: root
+  ansible.builtin.yum:
+    name: "git"
+    state: present
+
+- name: clone a repo
+  remote_user: ec2-user
+  become: true
+  become_user: root
+  ansible.builtin.git:
+    repo: https://github.com/alagbaski/tooling.git
+    dest: /var/www/html
+    force: yes
+
+- name: copy html content to one level up
+  remote_user: ec2-user
+  become: true
+  become_user: root
+  command: cp -r /var/www/html/html/ /var/www/
+
+- name: start service httpd, if not started
+  remote_user: ec2-user
+  become: true
+  become_user: root
+  ansible.builtin.service:
+    name: httpd
+    state: started
+
+- name: recursively remove /tooling directory
+  remote_user: ec2-user
+  become: true
+  become_user: root
+  ansible.builtin.file:
+    path: /var/www/html/html
     state: absent
