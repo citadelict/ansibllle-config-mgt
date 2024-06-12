@@ -17,7 +17,7 @@
 # Setup/install tasks.
 - name: Setup/install tasks
   include_tasks: "setup-{{ ansible_os_family }}.yml"
-  sudo: yes
+  become: yes
 
 
 # Figure out what version of Apache is installed.
