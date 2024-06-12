@@ -42,4 +42,4 @@
     path: /etc/nginx/nginx.conf
     regexp: '^(\s*root\s+).*;$'
     replace: '\1/var/www/html;'  # Adjust the directory path as needed
-    notify: Reload Nginx
+    
