@@ -56,6 +56,9 @@
       ProxyPass "/" "balancer://mycluster/"
       ProxyPassReverse "/" "balancer://mycluster/"
     insertbefore: "</VirtualHost>"
+  owner: root
+  group: root
+  mode: 0644
   notify: restart apache
   become: yes
   ignore_errors: yes
