@@ -6,21 +6,25 @@
     state: present
 
 - name: Install Git
+  become: true
   ansible.builtin.yum:
     name: "git"
     state: present
 
 - name: Clone a repo
+  become: true
   ansible.builtin.git:
     repo: https://github.com/citadelict/tooling2.git
     dest: /var/www/html
     force: yes
 
 - name: Copy HTML content to one level up
+  become: true
   ansible.builtin.command:
     cmd: cp -r /var/www/html/html/ /var/www/
 
 - name: Recursively remove /var/www/html/html/ directory
+  become: true
   ansible.builtin.file:
     path: /var/www/html/html
     state: absent
