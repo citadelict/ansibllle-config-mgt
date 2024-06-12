@@ -45,9 +45,8 @@
   become: yes
 
 - name: Enable Apache modules
-  ansible.builtin.shell: 
+  ansible.builtin.shell:
     cmd: "a2enmod {{ item }}"
-    warn: false  # This option is to prevent Ansible from warning about using shell instead of a module.
   loop:
     - rewrite
     - proxy
@@ -56,7 +55,7 @@
     - headers
     - lbmethod_bytraffic
   notify: restart apache
-  become: yes  
+  become: yes
 
 - name: Insert load balancer configuration into Apache
   ansible.builtin.blockinfile:
