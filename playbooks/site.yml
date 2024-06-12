@@ -7,10 +7,8 @@
         - always
 
 - name: Webserver assignment
-  hosts: uat-webservers
-  import_playbook: "../static-assignments/uat-webservers.yml"
+  ansible.builtin.import_playbook: "../static-assignments/uat-webservers.yml"
 
 - name: Loadbalancers assignment
-  hosts: lb
-  import_playbook: "../static-assignments/loadbalancers.yml"
+  ansible.builtin.import_playbook: "../static-assignments/loadbalancers.yml"
   when: load_balancer_is_required
