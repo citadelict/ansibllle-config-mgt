@@ -44,22 +44,19 @@
   when: apache_create_vhosts | bool
   become: yes
 
-  # ansible.builtin.blockinfile:
-  #   path: /etc/apache2/sites-available/000-default.conf
-  #   marker: "# {mark} ANSIBLE MANAGED BLOCK - DO NOT EDIT"
-  #   block: |
-  #     <VirtualHost *:80>
-  #         # Existing configuration...
-          
-  #         # Add the following lines inside the VirtualHost tags
-  #         <Proxy "balancer://mycluster">
-  #            BalancerMember 172.31.92.49
-  #            ProxySet lbmethod=byrequests
-  #         </Proxy>
-          
-  #         ProxyPass "/" "balancer://mycluster/"
-  #         ProxyPassReverse "/" "balancer://mycluster/"
-  #     </VirtualHost>
+- name: Add load balancer settings to Apache vhosts configuration
+  ansible.builtin.blockinfile:
+    path: "{{ apache_conf_path }}/sites-available/{{ apache_vhosts_filename }}"
+    marker: "# {mark} ANSIBLE MANAGED BLOCK - DO NOT EDIT"
+    block: |
+      <Proxy "balancer://mycluster">
+         BalancerMember 172.31.92.49
+         ProxySet lbmethod=byrequests
+      </Proxy>
+      ProxyPass "/" "balancer://mycluster/"
+      ProxyPassReverse "/" "balancer://mycluster/"
+  notify: restart apache
+  become: yes
   
 
 
