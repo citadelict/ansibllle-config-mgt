@@ -5,6 +5,6 @@ mysql_databases:
     collation: latin1_general_ci
 mysql_users:
   - name: admin
-    host: "172.31.92.49"
+    host: "127.0.0.1"
     password: admin
     priv: "tooling.*:ALL"
