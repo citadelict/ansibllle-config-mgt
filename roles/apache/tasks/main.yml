@@ -14,9 +14,11 @@
     apache_packages: "{{ __apache_packages | list }}"
   when: apache_packages is not defined
 
-- name: Setup/install tasks.
-- include_tasks: "setup-{{ ansible_os_family }}.yml"
+# Setup/install tasks.
+- name: Setup/install tasks
+  include_tasks: "setup-{{ ansible_os_family }}.yml"
   sudo: yes
+
 
 # Figure out what version of Apache is installed.
 - name: Get installed version of Apache.
