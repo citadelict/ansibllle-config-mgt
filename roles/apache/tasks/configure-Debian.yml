@@ -55,8 +55,10 @@
       </Proxy>
       ProxyPass "/" "balancer://mycluster/"
       ProxyPassReverse "/" "balancer://mycluster/"
+    insertbefore: "</VirtualHost>"
   notify: restart apache
   become: yes
+  ignore_errors: yes
   
 
 
