@@ -44,7 +44,35 @@
   when: apache_create_vhosts | bool
   become: yes
 
+- name: Enable Apache modules
+  ansible.builtin.shell: 
+    cmd: "a2enmod {{ item }}"
+    warn: false  # This option is to prevent Ansible from warning about using shell instead of a module.
+  loop:
+    - rewrite
+    - proxy
+    - proxy_balancer
+    - proxy_http
+    - headers
+    - lbmethod_bytraffic
+  notify: restart apache
+  become: yes  
 
+- name: Insert load balancer configuration into Apache
+  ansible.builtin.blockinfile:
+    path: /etc/apache2/sites-available/000-default.conf
+    block: |
+      <Proxy "balancer://mycluster">
+         BalancerMember http://webserver1-private-ip
+         BalancerMember http://webserver2-private-ip
+         ProxySet lbmethod=byrequests
+      </Proxy>
+      ProxyPass "/" "balancer://mycluster/"
+      ProxyPassReverse "/" "balancer://mycluster/"
+    marker: "# {mark} ANSIBLE MANAGED BLOCK"
+    insertafter: EOF
+  notify: restart apache
+  become: yes
 
 
 
