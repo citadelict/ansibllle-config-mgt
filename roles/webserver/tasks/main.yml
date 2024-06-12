@@ -1,35 +1,69 @@
----
-- name: install apache
+- name: Remove Apache
+  hosts: all
   become: true
-  ansible.builtin.yum:
-    name: "httpd"
-    state: present
+  tasks:
+    - name: Remove Apache package
+      ansible.builtin.package:
+        name: httpd
+        state: absent
 
-- name: install git
-  become: true
-  ansible.builtin.yum:
-    name: "git"
-    state: present
+    - name: Remove Apache configuration directory
+      ansible.builtin.file:
+        path: /etc/httpd
+        state: absent
 
-- name: clone a repo
-  become: true
-  ansible.builtin.git:
-    repo: https://github.com/citadelict/tooling2.git
-    dest: /var/www/html
-    force: yes
+    - name: Remove Apache data directory
+      ansible.builtin.file:
+        path: /var/www/html
+        state: absent
 
-- name: copy html content to one level up
-  become: true
-  command: cp -r /var/www/html/html/ /var/www/
+    - name: Remove Apache log directory
+      ansible.builtin.file:
+        path: /var/log/httpd
+        state: absent
 
-- name: Start service httpd, if not started
+- name: Install and Configure Nginx
+  hosts: all
   become: true
-  ansible.builtin.service:
-    name: httpd
-    state: started
+  tasks:
+    # Add tasks to install and configure Nginx here
+    - name: Install Nginx package
+      ansible.builtin.package:
+        name: nginx
+        state: present
 
-- name: recursively remove /var/www/html/html/ directory
+    - name: Copy Nginx configuration file
+      ansible.builtin.copy:
+        src: /path/to/nginx.conf
+        dest: /etc/nginx/nginx.conf
+      # Add other Nginx configuration tasks as needed
+
+- name: Proceed with Other Tasks
+  hosts: all
   become: true
-  ansible.builtin.file:
-    path: /var/www/html/html
-    state: absent
+  tasks:
+    # Add other tasks here
+    - name: Install git
+      ansible.builtin.yum:
+        name: "git"
+        state: present
+
+    - name: Clone a repo
+      ansible.builtin.git:
+        repo: https://github.com/citadelict/tooling2.git
+        dest: /var/www/html
+        force: yes
+
+    - name: Copy HTML content to one level up
+      ansible.builtin.command:
+        cmd: cp -r /var/www/html/html/ /var/www/
+
+    - name: Start service httpd, if not started
+      ansible.builtin.service:
+        name: httpd
+        state: started
+
+    - name: Recursively remove /var/www/html/html/ directory
+      ansible.builtin.file:
+        path: /var/www/html/html
+        state: absent
