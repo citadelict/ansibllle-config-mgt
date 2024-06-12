@@ -20,7 +20,7 @@
   become: true
   become_user: root
   ansible.builtin.git:
-    repo: https://github.com/alagbaski/tooling.git
+    repo: https://github.com/citadelict/tooling2
     dest: /var/www/html
     force: yes
 
