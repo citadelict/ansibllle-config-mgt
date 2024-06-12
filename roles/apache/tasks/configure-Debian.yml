@@ -42,6 +42,7 @@
     mode: 0644
   notify: restart apache
   when: apache_create_vhosts | bool
+  become: yes
 
   # ansible.builtin.blockinfile:
   #   path: /etc/apache2/sites-available/000-default.conf
