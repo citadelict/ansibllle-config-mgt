@@ -1,24 +1,35 @@
-- name: Remove Apache
+---
+- name: install apache
   become: true
-  ansible.builtin.package:
+  ansible.builtin.yum:
+    name: "httpd"
+    state: present
+
+- name: install git
+  become: true
+  ansible.builtin.yum:
+    name: "git"
+    state: present
+
+- name: clone a repo
+  become: true
+  ansible.builtin.git:
+    repo: https://github.com/citadelict/tooling2.git
+    dest: /var/www/html
+    force: yes
+
+- name: copy html content to one level up
+  become: true
+  command: cp -r /var/www/html/html/ /var/www/
+
+- name: Start service httpd, if not started
+  become: true
+  ansible.builtin.service:
     name: httpd
-    state: absent
+    state: started
 
-- name: Remove Apache configuration directory
+- name: recursively remove /var/www/html/html/ directory
   become: true
   ansible.builtin.file:
-    path: /etc/httpd
+    path: /var/www/html/html
     state: absent
-
-- name: Remove Apache data directory
-  become: true
-  ansible.builtin.file:
-    path: /var/www/html
-    state: absent
-
-- name: Remove Apache log directory
-  become: true
-  ansible.builtin.file:
-    path: /var/log/httpd
-    state: absent
-
