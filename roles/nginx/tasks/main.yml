@@ -16,7 +16,7 @@
   when: ansible_distribution == 'Ubuntu'
   
   vars:
-  
+
      ansible_become: true
 
 - include_tasks: setup-Debian.yml
@@ -54,4 +54,4 @@
     name: nginx
     state: "{{ nginx_service_state }}"
     enabled: "{{ nginx_service_enabled }}"
-    become: yes
+  become: yes
