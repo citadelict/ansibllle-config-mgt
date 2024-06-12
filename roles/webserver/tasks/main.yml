@@ -1,3 +1,4 @@
+---
 - name: Remove Apache
   hosts: all
   become: true
