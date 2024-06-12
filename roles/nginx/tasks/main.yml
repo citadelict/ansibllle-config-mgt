@@ -49,6 +49,15 @@
     - reload nginx
   become: yes
   
+- name: Replace default listening port for Nginx
+  ansible.builtin.replace:
+    path: /etc/nginx/sites-available/default
+    regexp: '^\s*listen\s+80(;|\s)'
+    replace: 'listen 8080\1'
+    backup: yes  # Creates a backup before making changes
+  notify:
+    - restart nginx
+  become: yes
 
 
 - name: Ensure nginx service is running as configured.
