@@ -37,6 +37,7 @@
   ansible.builtin.service:
     name: httpd
     state: started
+    enabled: yes
 
 - name: recursively remove /tooling directory
   remote_user: ec2-user
