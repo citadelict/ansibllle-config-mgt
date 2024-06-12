@@ -54,6 +54,7 @@
     - proxy_http
     - headers
     - lbmethod_bytraffic
+    - lbmethod_byrequests
   notify: restart apache
   become: yes
 
@@ -62,7 +63,7 @@
     path: /etc/apache2/sites-available/000-default.conf
     block: |
       <Proxy "balancer://mycluster">
-        BalancerMember http://172.31.92.49
+        BalancerMember http://172.31.92.49:80
         ProxySet lbmethod=byrequests
       </Proxy>
       ProxyPass "/" "balancer://mycluster/"
