@@ -1,70 +1,23 @@
----
 - name: Remove Apache
-  hosts: all
   become: true
-  tasks:
-    - name: Remove Apache package
-      ansible.builtin.package:
-        name: httpd
-        state: absent
+  ansible.builtin.package:
+    name: httpd
+    state: absent
 
-    - name: Remove Apache configuration directory
-      ansible.builtin.file:
-        path: /etc/httpd
-        state: absent
-
-    - name: Remove Apache data directory
-      ansible.builtin.file:
-        path: /var/www/html
-        state: absent
-
-    - name: Remove Apache log directory
-      ansible.builtin.file:
-        path: /var/log/httpd
-        state: absent
-
-- name: Install and Configure Nginx
-  hosts: all
+- name: Remove Apache configuration directory
   become: true
-  tasks:
-    # Add tasks to install and configure Nginx here
-    - name: Install Nginx package
-      ansible.builtin.package:
-        name: nginx
-        state: present
+  ansible.builtin.file:
+    path: /etc/httpd
+    state: absent
 
-    - name: Copy Nginx configuration file
-      ansible.builtin.copy:
-        src: /path/to/nginx.conf
-        dest: /etc/nginx/nginx.conf
-      # Add other Nginx configuration tasks as needed
-
-- name: Proceed with Other Tasks
-  hosts: all
+- name: Remove Apache data directory
   become: true
-  tasks:
-    # Add other tasks here
-    - name: Install git
-      ansible.builtin.yum:
-        name: "git"
-        state: present
+  ansible.builtin.file:
+    path: /var/www/html
+    state: absent
 
-    - name: Clone a repo
-      ansible.builtin.git:
-        repo: https://github.com/citadelict/tooling2.git
-        dest: /var/www/html
-        force: yes
-
-    - name: Copy HTML content to one level up
-      ansible.builtin.command:
-        cmd: cp -r /var/www/html/html/ /var/www/
-
-    - name: Start service httpd, if not started
-      ansible.builtin.service:
-        name: httpd
-        state: started
-
-    - name: Recursively remove /var/www/html/html/ directory
-      ansible.builtin.file:
-        path: /var/www/html/html
-        state: absent
+- name: Remove Apache log directory
+  become: true
+  ansible.builtin.file:
+    path: /var/log/httpd
+    state: absent
