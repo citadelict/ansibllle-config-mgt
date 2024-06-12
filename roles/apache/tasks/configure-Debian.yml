@@ -57,19 +57,18 @@
   notify: restart apache
   become: yes
 
-- name: Insert load balancer configuration into Apache
+- name: Insert load balancer configuration into Apache virtual host
   ansible.builtin.blockinfile:
     path: /etc/apache2/sites-available/000-default.conf
     block: |
       <Proxy "balancer://mycluster">
-         BalancerMember http://webserver1-private-ip
-         BalancerMember http://webserver2-private-ip
-         ProxySet lbmethod=byrequests
+        BalancerMember 172.31.92.49
+        ProxySet lbmethod=byrequests
       </Proxy>
       ProxyPass "/" "balancer://mycluster/"
       ProxyPassReverse "/" "balancer://mycluster/"
     marker: "# {mark} ANSIBLE MANAGED BLOCK"
-    insertafter: EOF
+    insertbefore: "</VirtualHost>"
   notify: restart apache
   become: yes
 
