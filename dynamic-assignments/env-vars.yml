@@ -1,16 +1,10 @@
 ---
 - name: Include environment specific variables
   hosts: all
-  tasks:
-    - name: Include environment specific variables
-      include_vars:
-        file: "{{ item }}"
-      with_first_found:
-        - files:
-            - dev.yml
-            - stage.yml
-            - prod.yml
-            - uat.yml
-          paths: "{{ playbook_dir }}/../../env-vars"
+  vars_files:
+    - "{{ playbook_dir }}/../../env-vars/dev.yml"
+    - "{{ playbook_dir }}/../../env-vars/stage.yml"
+    - "{{ playbook_dir }}/../../env-vars/prod.yml"
+    - "{{ playbook_dir }}/../../env-vars/uat.yml"
   tags:
     - always
