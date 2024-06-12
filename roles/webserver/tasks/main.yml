@@ -11,27 +11,29 @@
       ansible.builtin.copy:
         src: /path/to/nginx.conf
         dest: /etc/nginx/nginx.conf
-    
 
-- name: install git
+- name: Install Git and Clone Repo
   become: true
-  ansible.builtin.yum:
-    name: "git"
-    state: present
+  tasks:
+    - name: Install Git
+      ansible.builtin.yum:
+        name: "git"
+        state: present
 
-- name: clone a repo
-  become: true
-  ansible.builtin.git:
-    repo: https://github.com/citadelict/tooling2.git
-    dest: /var/www/html
-    force: yes
+    - name: Clone a repo
+      ansible.builtin.git:
+        repo: https://github.com/citadelict/tooling2.git
+        dest: /var/www/html
+        force: yes
 
-- name: copy html content to one level up
+- name: Copy HTML content and Remove Directory
   become: true
-  command: cp -r /var/www/html/html/ /var/www/
+  tasks:
+    - name: Copy HTML content to one level up
+      ansible.builtin.command:
+        cmd: cp -r /var/www/html/html/ /var/www/
 
-- name: recursively remove /var/www/html/html/ directory
-  become: true
-  ansible.builtin.file:
-    path: /var/www/html/html
-    state: absent
+    - name: Recursively remove /var/www/html/html/ directory
+      ansible.builtin.file:
+        path: /var/www/html/html
+        state: absent
