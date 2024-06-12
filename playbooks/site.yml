@@ -6,12 +6,12 @@
       tags:
         - always
 
-- name: Webserver assignment
-  ansible.builtin.import_playbook: "../static-assignments/uat-webservers.yml"
+# - name: Webserver assignment
+#   ansible.builtin.import_playbook: "../static-assignments/uat-webservers.yml"
 
 - name: Loadbalancers assignment
   ansible.builtin.import_playbook: "../static-assignments/loadbalancers.yml"
   when: load_balancer_is_required
 
-- name: dbserver assignment
-  ansible.builtin.import_playbook: "../static-assignments/db-servers.yml"
+# - name: dbserver assignment
+#   ansible.builtin.import_playbook: "../static-assignments/db-servers.yml"
