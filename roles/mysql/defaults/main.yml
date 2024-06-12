@@ -2,12 +2,12 @@
 # or sudo access
 mysql_user_home: /root
 mysql_user_name: root
-mysql_user_password: admin
+mysql_user_password: root
 
 # The default root user installed by mysql - almost always root
 mysql_root_home: /root
-mysql_root_username: admin
-mysql_root_password: admin
+mysql_root_username: root
+mysql_root_password: root
 
 # Set this to `true` to forcibly update the root password.
 mysql_root_password_update: false
@@ -105,18 +105,18 @@ mysql_config_include_files: []
 #  - { src: path/relative/to/playbook/anotherfile.cnf, force: yes }
 
 # Databases.
-mysql_databases:
-  - name: tooling
-    collation: utf8_general_ci
-    encoding: utf8
-    replicate: 1
+mysql_databases: []
+  # - name: tooling
+  #   collation: utf8_general_ci
+  #   encoding: utf8
+  #   replicate: 1
 
 # Users.
-mysql_users:
-  - name: admin
-    host: 184.73.8.221
-    password: admin
-    priv: "tooling.*:ALL"
+mysql_users: []
+ # - name: admin
+ #   host: 184.73.8.221
+ #   password: admin
+ #   priv: "tooling.*:ALL"
 
 mysql_disable_log_bin: false
 
