@@ -11,6 +11,6 @@
             - prod.yml
             - uat.yml
           
-            paths: "{{ playbook_dir }}/../env-vars"
+          paths: "{{ playbook_dir }}/../env-vars"
       tags:
         - always
