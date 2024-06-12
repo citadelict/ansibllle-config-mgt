@@ -14,7 +14,10 @@
 
 - include_tasks: setup-Ubuntu.yml
   when: ansible_distribution == 'Ubuntu'
-  become: yes
+  
+  vars:
+  
+     ansible_become: true
 
 - include_tasks: setup-Debian.yml
   when: ansible_os_family == 'Debian'
