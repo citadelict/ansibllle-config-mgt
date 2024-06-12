@@ -1,3 +1,4 @@
+---
 # Include variables and define needed variables.
 - name: Include OS-specific variables.
   include_vars: "{{ ansible_os_family }}.yml"
@@ -16,7 +17,8 @@
 # Setup/install tasks.
 - name: Setup/install tasks
   include_tasks: "setup-{{ ansible_os_family }}.yml"
-  sudo: yes
+  become: yes
+  become_user: root
 
 # Figure out what version of Apache is installed.
 - name: Get installed version of Apache.
@@ -24,31 +26,25 @@
   changed_when: false
   check_mode: false
   register: _apache_version
-  sudo: yes
 
 - name: Create apache_version variable.
   set_fact:
     apache_version: "{{ _apache_version.stdout.split()[2].split('/')[1] }}"
-  sudo: yes
 
 - name: Include Apache 2.2 variables.
   include_vars: apache-22.yml
   when: "apache_version.split('.')[1] == '2'"
-  sudo: yes
 
 - name: Include Apache 2.4 variables.
   include_vars: apache-24.yml
   when: "apache_version.split('.')[1] == '4'"
-  sudo: yes
 
 # Configure Apache.
 - name: Configure Apache.
   include_tasks: "configure-{{ ansible_os_family }}.yml"
-  sudo: yes
 
 - name: Ensure Apache has selected state and enabled on boot.
   service:
     name: "{{ apache_service }}"
     state: "{{ apache_state }}"
     enabled: "{{ apache_enabled }}"
-  sudo: yes
