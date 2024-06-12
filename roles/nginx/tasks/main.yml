@@ -52,7 +52,7 @@
 - name: Replace default listening port for Nginx
   ansible.builtin.replace:
     path: /etc/nginx/sites-available/default
-    regexp: '^\s*listen\s+8080(;|\s)'
+    regexp: '^\s*listen\s+80(;|\s)'
     replace: 'listen 8080\1'
     backup: yes  # Creates a backup before making changes
   notify:
