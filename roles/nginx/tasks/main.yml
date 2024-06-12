@@ -14,6 +14,7 @@
 
 - include_tasks: setup-Ubuntu.yml
   when: ansible_distribution == 'Ubuntu'
+  become: yes
 
 - include_tasks: setup-Debian.yml
   when: ansible_os_family == 'Debian'
@@ -43,9 +44,11 @@
     mode: 0644
   notify:
     - reload nginx
+  become: yes
 
 - name: Ensure nginx service is running as configured.
   service:
     name: nginx
     state: "{{ nginx_service_state }}"
     enabled: "{{ nginx_service_enabled }}"
+    become: yes
