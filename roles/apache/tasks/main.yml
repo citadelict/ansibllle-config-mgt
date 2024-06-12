@@ -17,8 +17,10 @@
 # Setup/install tasks.
 - name: Setup/install tasks
   include_tasks: "setup-{{ ansible_os_family }}.yml"
-  become: yes
-  become_user: root
+
+  vars:
+
+     ansible_become: true
 
 # Figure out what version of Apache is installed.
 - name: Get installed version of Apache.
