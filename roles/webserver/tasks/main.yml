@@ -1,4 +1,19 @@
 ---
+- name: Install and Configure Nginx
+  hosts: all
+  become: true
+  tasks:
+    - name: Install Nginx package
+      ansible.builtin.package:
+        name: nginx
+        state: present
+
+    - name: Copy Nginx configuration file
+      ansible.builtin.copy:
+        src: /path/to/nginx.conf
+        dest: /etc/nginx/nginx.conf
+    
+
 - name: install git
   become: true
   ansible.builtin.yum:
