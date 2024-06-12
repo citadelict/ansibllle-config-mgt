@@ -1,4 +1,10 @@
 ---
+- name: Remove Apache
+  become: true
+  ansible.builtin.yum:
+    name: httpd
+    state: absent
+
 - name: Install Nginx package
   become: true
   ansible.builtin.package:
@@ -36,21 +42,4 @@
     state: started
     enabled: yes
 
-- name: Remove Nginx
-  become: true
-  ansible.builtin.yum:
-    name: nginx
-    state: absent
-
-- name: Install Apache
-  become: true
-  ansible.builtin.yum:
-    name: httpd
-    state: present
-
-- name: Start Apache service
-  become: true
-  ansible.builtin.service:
-    name: httpd
-    state: started
     
