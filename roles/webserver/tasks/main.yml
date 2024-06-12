@@ -1,15 +1,15 @@
 ---
-- name: Remove Apache
-  become: true
-  ansible.builtin.yum:
-    name: httpd
-    state: absent
+#- name: Remove Apache
+  #become: true
+  #ansible.builtin.yum:
+    #name: nginx
+    #state: absent
 
-- name: Install Nginx package
-  become: true
-  ansible.builtin.package:
-    name: nginx
-    state: present
+#- name: Install Nginx package
+  #become: true
+  #ansible.builtin.package:
+    #name: nginx
+    #state: present  
 
 - name: Install Git
   become: true
@@ -27,7 +27,7 @@
 - name: Copy HTML content to one level up
   become: true
   ansible.builtin.command:
-    cmd: cp -r /var/www/html/html/ /var/www/
+    cmd: cp -r /var/www/html/html/ /var/www/html
 
 - name: Recursively remove /var/www/html/html/ directory
   become: true
