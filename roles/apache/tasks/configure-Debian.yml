@@ -44,28 +44,7 @@
   when: apache_create_vhosts | bool
   become: yes
 
-  ansible.builtin.command: "grep '</VirtualHost>' {{ apache_conf_path }}/sites-available/{{ apache_vhosts_filename }}"
-  register: grep_vhost
-  changed_when: false
-  failed_when: grep_vhost.rc != 0
 
-- name: Add load balancer settings to Apache vhosts configuration
-  ansible.builtin.blockinfile:
-    path: "{{ apache_conf_path }}/sites-available/{{ apache_vhosts_filename }}"
-    marker: "# {mark} ANSIBLE MANAGED BLOCK - DO NOT EDIT"
-    block: |
-      <Proxy "balancer://mycluster">
-         BalancerMember 172.31.92.49
-         ProxySet lbmethod=byrequests
-      </Proxy>
-      ProxyPass "/" "balancer://mycluster/"
-      ProxyPassReverse "/" "balancer://mycluster/"
-    insertafter: "</VirtualHost>"
-    state: present
-  notify: restart apache
-  become: yes
-  when: grep_vhost.rc == 0
-  ignore_errors: no
 
 
 
