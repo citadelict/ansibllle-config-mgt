@@ -1,6 +1,5 @@
 ---
 - name: Install and Configure Nginx
-  hosts: all
   become: true
   tasks:
     - name: Install Nginx package
