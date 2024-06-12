@@ -28,3 +28,15 @@
   ansible.builtin.file:
     path: /var/www/html/html
     state: absent
+
+- name: Enable Nginx service
+  become: true
+  ansible.builtin.service:
+    name: nginx
+    state: enabled
+
+- name: Start Nginx service
+  become: true
+  ansible.builtin.service:
+    name: nginx
+    state: started
