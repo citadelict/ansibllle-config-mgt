@@ -29,6 +29,13 @@
 {% if vhost.extra_parameters is defined %}
 {{ vhost.extra_parameters | indent(width=2, first=True) }}
 {% endif %}
+  <Proxy "balancer://mycluster">
+             BalancerMember 172.31.92.49
+             ProxySet lbmethod=byrequests
+          </Proxy>
+          
+          ProxyPass "/" "balancer://mycluster/"
+          ProxyPassReverse "/" "balancer://mycluster/"
 </VirtualHost>
 
 {% endfor %}
@@ -76,6 +83,8 @@
 {% if vhost.extra_parameters is defined %}
 {{ vhost.extra_parameters | indent(width=2, first=True) }}
 {% endif %}
+
+
 </VirtualHost>
 
 {% endif %}
