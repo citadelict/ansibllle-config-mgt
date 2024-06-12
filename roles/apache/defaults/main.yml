@@ -64,6 +64,3 @@ apache_packages_state: present
 enable_apache_lb: true
 
 load_balancer_is_required: true
-
-become: true
-become_user: root
