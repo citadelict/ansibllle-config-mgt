@@ -22,28 +22,20 @@
   ansible.builtin.apt:
     name:
       - php
+      - libapache2-mod-php
       - php-opcache
       - php-gd
       - php-curl
       - php-mysql
-      - php-fpm
     state: present
 
-- name: Start PHP-FPM service
+- name: Restart Apache to load PHP module
   remote_user: ubuntu
   become: true
   become_user: root
   ansible.builtin.service:
-    name: php7.4-fpm
-    state: started
-
-- name: Enable PHP-FPM service
-  remote_user: ubuntu
-  become: true
-  become_user: root
-  ansible.builtin.service:
-    name: php7.4-fpm
-    enabled: true
+    name: apache2
+    state: restarted
 
 - name: Set SELinux boolean for apache2_execmem
   remote_user: ubuntu
