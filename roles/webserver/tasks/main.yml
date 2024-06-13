@@ -53,7 +53,7 @@
     dest: /var/www/html
     force: yes
 
-- name: Copy HTML content to one level up
+- name: Copy HTML content to one /var/www/html directory
   remote_user: ubuntu
   become: true
   become_user: root
@@ -67,7 +67,7 @@
     name: apache2
     state: started
 
-- name: Recursively remove /var/www/html/html directory
+- name: remove /var/www/html/html directory
   remote_user: ubuntu
   become: true
   become_user: root
