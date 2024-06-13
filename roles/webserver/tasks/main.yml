@@ -37,6 +37,14 @@
     name: apache2
     state: restarted
 
+- name: Remove existing html directory if it exists
+  remote_user: ubuntu
+  become: true
+  become_user: root
+  ansible.builtin.file:
+    path: /var/www/html
+    state: absent
+
 - name: Clone a repo
   remote_user: ubuntu
   become: true
