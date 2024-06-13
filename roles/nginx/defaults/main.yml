@@ -64,7 +64,7 @@ nginx_remove_default_vhost: false
 # Listen on IPv6 (default: true)
 nginx_listen_ipv6: true
 
-nginx_vhosts: 
+nginx_vhosts:  []
   - listen: "80" # default: "80"
     server_name: "berryplug.cloud" 
     server_name_redirect: "berryplug.cloud"
