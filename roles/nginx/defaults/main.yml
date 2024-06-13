@@ -70,7 +70,7 @@ nginx_vhosts:
     server_name_redirect: "berryplug.cloud"
     root: "/var/www/html" 
     index: "index.php index.html index.htm" # default: "index.html index.htm"
-    filename: "berryplug.cloud.conf" # Can be used to set the vhost filename.
+    filename: "nginx.conf" # Can be used to set the vhost filename.
 
   # Properties that are only added if defined:
     server_name_redirect: "www.berryplug.cloud" # default: N/A
