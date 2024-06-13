@@ -7,21 +7,9 @@
       tags:
         - always
 
-- name: DB Server assignment
-  hosts: db-servers
-  become: yes
-  tasks:
-    - ansible.builtin.import_playbook: ../static-assignments/db-servers.yml
+- import_playbook: ../static-assignments/db-servers.yml
 
-- name: Webservers Tasks
-  hosts: uat-webservers
-  become: yes
-  tasks:
-    - ansible.builtin.import_playbook: ../static-assignments/uat-webservers.yml
+- import_playbook: ../static-assignments/uat-webservers.yml
 
-- name: Load balancer Tasks
-  hosts: all
-  become: yes
-  tasks:
-    - ansible.builtin.import_playbook: ../static-assignments/loadbalancers.yml
+- import_playbook: ../static-assignments/loadbalancers.yml
   when: load_balancer_is_required
