@@ -95,4 +95,4 @@ nginx_log_format: |-
   '$status $body_bytes_sent "$http_referer" '
   '"$http_user_agent" "$http_x_forwarded_for"'
 
-load_balancer_is_required: true
+load_balancer_is_required: false

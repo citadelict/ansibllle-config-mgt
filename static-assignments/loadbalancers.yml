@@ -1,6 +1,15 @@
 # static-assignments/loadbalancers.yml
 ---
 - hosts: lb
+
+  - name: Dynamically adjust Nginx load balancer setting based on Apache LB setting
+      set_fact:
+        enable_nginx_lb: "{{ not enable_apache_lb }}"
+      when: load_balancer_is_required | bool and enable_apache_lb | bool
+      
   roles:
-    - { role: nginx, when: enable_nginx_lb and load_balancer_is_required }
-    - { role: apache, when: enable_apache_lb and load_balancer_is_required }
+    - role: nginx
+      when: enable_nginx_lb | bool and load_balancer_is_required | bool
+
+    - role: apache
+      when: enable_apache_lb | bool and load_balancer_is_required | bool
