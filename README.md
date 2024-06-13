@@ -1,3 +1,3 @@
 # Ansible Config
 
-build 300
+commit
