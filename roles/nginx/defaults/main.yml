@@ -64,14 +64,13 @@ nginx_remove_default_vhost: false
 # Listen on IPv6 (default: true)
 nginx_listen_ipv6: true
 
-nginx_vhosts:
-  - listen: "80"  # The port Nginx listens on for this vhost, "80" is the default for HTTP.
-    server_name: "example.com"  # The domain name for this vhost.
-    root: "/var/www/html"  # The root directory of the web files for this vhost.
-    index: "index.php index.html index.htm"  # The index file order.
-    filename: "example.com.conf"  # The filename for this vhost configuration.
-   
-
+nginx_vhosts: 
+Example vhost below, showing all available options:
+- listen: "80" # default: "80"
+  server_name: "berryplug.cloud" # default: N/A
+  root: "/var/www/html" # default: N/A
+  index: "index.php index.html index.htm" # default: "index.html index.htm"
+  filename: "berryplug.cloud.conf" # Can be used to set the vhost filename.
 
   # Properties that are only added if defined:
   server_name_redirect: "www.berryplug.cloud" # default: N/A
