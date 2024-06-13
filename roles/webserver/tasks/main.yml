@@ -37,13 +37,6 @@
     name: apache2
     state: restarted
 
-- name: Set SELinux boolean for apache2_execmem
-  remote_user: ubuntu
-  become: true
-  become_user: root
-  ansible.builtin.command:
-    cmd: sudo setsebool -P httpd_execmem 1
-
 - name: Clone a repo
   remote_user: ubuntu
   become: true
