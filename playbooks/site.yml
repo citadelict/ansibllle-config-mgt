@@ -1,23 +1,25 @@
+# ---
+# - hosts: all
+# - import_playbook: ../static-assignments/common-del.yml
+
+# - hosts: uat-webservers
+# - import_playbook: ../static-assignments/uat-webservers.yml
+
 ---
 - name: Include dynamic variables
   hosts: all
+  become: yes
   tasks:
-    - include_vars: "../dynamic-assignments/env-vars.yml"
+    - include_vars: ../dynamic-assignments/env-vars.yml
       tags:
         - always
 
+- name: dbserver assignment
+  ansible.builtin.import_playbook: ../static-assignments/db-server.yml
 
-# - import_playbook: "../static-assignments/loadbalancers.yml"
-#   when: load_balancer_is_required
+- name: Webservers Tasks
+  ansible.builtin.import_playbook: ../static-assignments/uat-webservers.yml
 
-- name: Webserver assignment
-  hosts: all
-  tasks:
-    - name: Import Webserver playbook
-      import_playbook: "../static-assignments/uat-webservers.yml"
-
-- name: DB Server assignment
-  hosts: all
-  tasks:
-    - name: Import DB Server playbook
-      import_playbook: "../static-assignments/db-servers.yml"
+- name: Load balancer Tasks
+  ansible.builtin.import_playbook: ../static-assignments/loadbalancers.yml
+  when: load_balancer_is_required

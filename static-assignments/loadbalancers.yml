@@ -1,9 +1,5 @@
 ---
 - hosts: lb
- 
   roles:
-    - role: nginx
-      when: enable_nginx_lb | bool and load_balancer_is_required | bool
-
-    - role: apache
-      when: enable_apache_lb | bool and load_balancer_is_required | bool
+    - { role: nginx, when: enable_nginx_lb and load_balancer_is_required }
+    - { role: apache, when: enable_apache_lb and load_balancer_is_required }
