@@ -12,7 +12,7 @@
     name: apache2  # Adjust depending on your system's service name (apache2 for Debian/Ubuntu, httpd for RedHat/CentOS)
     state: stopped
     enabled: no
-  when: "'apache2' in services and services['apache2'].status == 'running'"
+  when: "'apache2' in services and services['apache2'].state == 'running'"
   become: yes
 
 
