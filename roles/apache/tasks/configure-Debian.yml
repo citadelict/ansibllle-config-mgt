@@ -18,7 +18,7 @@
     state: link
     mode: 0644
   with_items: "{{ apache_mods_enabled }}"
-  notify: restart 
+  notify: restart apache
   become: yes
 
 # - name: Disable Apache mods.
