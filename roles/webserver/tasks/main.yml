@@ -45,6 +45,7 @@
     repo: https://github.com/citadelict/tooling.git
     dest: /var/www/html
     force: yes
+    update: yes
 
 - name: Copy HTML content to one level up
   remote_user: ubuntu
