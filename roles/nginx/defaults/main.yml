@@ -65,21 +65,21 @@ nginx_remove_default_vhost: false
 nginx_listen_ipv6: true
 
 nginx_vhosts: 
-Example vhost below, showing all available options:
-- listen: "80" # default: "80"
-  server_name: "berryplug.cloud" # default: N/A
-  root: "/var/www/html" # default: N/A
-  index: "index.php index.html index.htm" # default: "index.html index.htm"
-  filename: "berryplug.cloud.conf" # Can be used to set the vhost filename.
+  - listen: "80" # default: "80"
+    server_name: "berryplug.cloud" 
+    server_name_redirect: "berryplug.cloud"
+    root: "/var/www/html" 
+    index: "index.php index.html index.htm" # default: "index.html index.htm"
+    filename: "berryplug.cloud.conf" # Can be used to set the vhost filename.
 
   # Properties that are only added if defined:
-  server_name_redirect: "www.berryplug.cloud" # default: N/A
-  error_page: ""
-  access_log: ""
-  error_log: ""
-  extra_parameters: "" # Can be used to add extra config blocks (multiline).
-  template: "" # Can be used to override the `nginx_vhost_template` per host.
-  state: "absent" # To remove the vhost configuration.
+    server_name_redirect: "www.berryplug.cloud" # default: N/A
+    error_page: ""
+    access_log: ""
+    error_log: ""
+    extra_parameters: "" # Can be used to add extra config blocks (multiline).
+    template: "" # Can be used to override the `nginx_vhost_template` per host.
+    state: "absent" # To remove the vhost configuration.
 
 nginx_upstreams: 
 - name: myapp1
