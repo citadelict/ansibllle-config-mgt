@@ -1,14 +1,6 @@
 ---
 - hosts: lb
-  vars_files:
-    - "{{ playbook_dir }}/../../env-vars/{{ env_type }}.yml"
-    
-  tasks:
-    - name: Dynamically adjust Nginx load balancer setting based on Apache LB setting
-      set_fact:
-        enable_nginx_lb: "{{ not enable_apache_lb }}"
-      when: load_balancer_is_required | bool and enable_apache_lb | bool
-
+ 
   roles:
     - role: nginx
       when: enable_nginx_lb | bool and load_balancer_is_required | bool
