@@ -22,3 +22,6 @@
 #   tasks:
 #     - name: Import DB Server playbook
 #       import_playbook: "../static-assignments/db-servers.yml"
+
+- debug:
+    msg: "Load Balancer Required: {{ load_balancer_is_required }}, Enable Nginx: {{ enable_nginx_lb }}, Enable Apache: {{ enable_apache_lb }}"
