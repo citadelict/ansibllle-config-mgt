@@ -3,6 +3,7 @@
   apt: update_cache=yes cache_valid_time=86400
   changed_when: false
   become: yes
+  when: enable_nginx_lb
 
 - name: Ensure nginx is installed.
   become: yes
@@ -10,3 +11,4 @@
     name: "{{ nginx_package_name }}"
     state: present
     default_release: "{{ nginx_default_release }}"
+  when: enable_nginx_lb
