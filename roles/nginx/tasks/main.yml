@@ -3,6 +3,19 @@
 - name: Include OS-specific variables.
   include_vars: "{{ ansible_os_family }}.yml"
 
+
+- name: Check if Apache is running
+  ansible.builtin.service_facts:
+
+- name: Stop and disable Apache if it is running
+  ansible.builtin.service:
+    name: apache2  # Adjust depending on your system's service name (apache2 for Debian/Ubuntu, httpd for RedHat/CentOS)
+    state: stopped
+    enabled: no
+  when: "'apache2' in services and services['apache2'].status == 'running'"
+  become: yes
+
+
 - name: Define nginx_user.
   set_fact:
     nginx_user: "{{ __nginx_user }}"
