@@ -9,7 +9,7 @@
 
 - name: Stop and disable Apache if it is running
   ansible.builtin.service:
-    name: apache2  # Adjust depending on your system's service name (apache2 for Debian/Ubuntu, httpd for RedHat/CentOS)
+    name: apache2 
     state: stopped
     enabled: no
   when: "'apache2' in services and services['apache2'].state == 'running'"
@@ -61,16 +61,7 @@
   notify:
     - reload nginx
   become: yes
-  
-- name: Replace default listening port for Nginx
-  ansible.builtin.replace:
-    path: /etc/nginx/sites-available/default
-    regexp: '^\s*listen\s+80(;|\s)'
-    replace: 'listen 8080\1'
-    backup: yes  # Creates a backup before making changes
-  notify:
-    - restart nginx
-  become: yes
+
 
 
 - name: Ensure nginx service is running as configured.

@@ -67,10 +67,10 @@ nginx_listen_ipv6: true
 nginx_vhosts: 
 Example vhost below, showing all available options:
 - listen: "80" # default: "80"
-  server_name: "example.com" # default: N/A
+  server_name: "berryplug.cloud www.berryplug.cloud" # default: N/A
   root: "/var/www/html" # default: N/A
   index: "index.php index.html index.htm" # default: "index.html index.htm"
-  filename: "example.com.conf" # Can be used to set the vhost filename.
+  filename: "nginx.conf" # Can be used to set the vhost filename.
 
   # Properties that are only added if defined:
   server_name_redirect: "www.example.com" # default: N/A
