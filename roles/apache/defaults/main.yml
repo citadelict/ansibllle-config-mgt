@@ -62,3 +62,4 @@ apache_restart_state: restarted
 apache_packages_state: present
 
 load_balancer_is_required: false
+enable_apache_lb: false
