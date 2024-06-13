@@ -7,6 +7,32 @@
     name: "httpd"
     state: present
 
+- name: Install EPEL and Remi Repository for PHP 7.4
+  remote_user: ec2-user
+  become: true
+  become_user: root
+  ansible.builtin.yum:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - epel-release
+    - https://rpms.remirepo.net/enterprise/remi-release-7.rpm
+
+- name: install php 7.4
+  remote_user: ec2-user
+  become: true
+  become_user: root
+  ansible.builtin.yum:
+    name:
+      - php
+      - php-mysql
+      - php-xml
+      - php-mbstring
+      - php-gd
+      - php-opcache
+    enablerepo: "epel,remi-php74"
+    state: present
+
 - name: install git
   remote_user: ec2-user
   become: true
@@ -28,7 +54,8 @@
   remote_user: ec2-user
   become: true
   become_user: root
-  command: cp -r /var/www/html/html/ /var/www/
+  ansible.builtin.shell:
+    cmd: cp -r /var/www/html/html/* /var/www/html/
 
 - name: start service httpd, if not started
   remote_user: ec2-user
