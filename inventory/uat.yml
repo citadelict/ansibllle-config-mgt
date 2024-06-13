@@ -1,6 +1,6 @@
 [uat-webservers]
-13.51.64.187 ansible_ssh_user=ec2-user ansible_ssh_private_key_file=/home/ubuntu/key.pem
-13.53.207.112 ansible_ssh_user=ec2-user ansible_ssh_private_key_file=/home/ubuntu/key.pem
+13.51.106.72 ansible_ssh_user=ubuntu ansible_ssh_private_key_file=/home/ubuntu/key.pem
+13.53.64.211 ansible_ssh_user=ubuntu ansible_ssh_private_key_file=/home/ubuntu/key.pem
 
 [lb]
 51.20.86.98 ansible_ssh_user=ubuntu ansible_ssh_private_key_file=/home/ubuntu/key.pem

@@ -1,114 +1,71 @@
-- name: Install Apache
-  remote_user: ec2-user
+---
+- name: Install and configure LAMP stack with PHP 7.4 on Ubuntu
+  hosts: all
   become: true
-  become_user: root
-  ansible.builtin.yum:
-    name: "httpd"
-    state: present
+  tasks:
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: yes
 
-- name: Install Git
-  remote_user: ec2-user
-  become: true
-  become_user: root
-  ansible.builtin.yum:
-    name: "git"
-    state: present
+    - name: Install necessary packages
+      ansible.builtin.apt:
+        name:
+          - apache2
+          - git
+          - software-properties-common
+        state: present
 
-- name: Install EPEL release
-  remote_user: ec2-user
-  become: true
-  become_user: root
-  ansible.builtin.command:
-    cmd: sudo dnf install https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm -y
+    - name: Add PHP PPA
+      ansible.builtin.apt_repository:
+        repo: ppa:ondrej/php
+        state: present
 
-- name: Install dnf-utils and Remi repository
-  remote_user: ec2-user
-  become: true
-  become_user: root
-  dnf:
-    name:
-      - dnf-utils
-      - http://rpms.remirepo.net/enterprise/remi-release-9.rpm
-    state: present
+    - name: Update apt cache after adding PHP PPA
+      ansible.builtin.apt:
+        update_cache: yes
 
+    - name: Install PHP and extensions
+      ansible.builtin.apt:
+        name:
+          - php7.4
+          - php7.4-opcache
+          - php7.4-gd
+          - php7.4-curl
+          - php7.4-mysql
+        state: present
+      notify:
+        - restart apache2
 
-- name: Reset PHP module
-  remote_user: ec2-user
-  become: true
-  become_user: root
-  ansible.builtin.command:
-    cmd: sudo dnf module reset php -y
+    - name: Set SELinux boolean for httpd_execmem
+      ansible.builtin.seboolean:
+        name: httpd_execmem
+        state: true
+        persistent: yes
+      when: ansible_selinux.status == "enabled"
 
-- name: Enable PHP 7.4 module
-  remote_user: ec2-user
-  become: true
-  become_user: root
-  ansible.builtin.command:
-    cmd: sudo dnf module enable php:remi-7.4 -y
+    - name: Clone a repo
+      ansible.builtin.git:
+        repo: https://github.com/citadelict/tooling.git
+        dest: /var/www/html
+        force: yes
 
-- name: Install PHP and extensions
-  remote_user: ec2-user
-  become: true
-  become_user: root
-  ansible.builtin.yum:
-    name:
-      - php
-      - php-opcache
-      - php-gd
-      - php-curl
-      - php-mysqlnd
-    state: present
+    - name: Copy HTML content to one level up
+      ansible.builtin.command:
+        cmd: cp -r /var/www/html/html/ /var/www/
+      
+    - name: Recursively remove /var/www/html/html directory
+      ansible.builtin.file:
+        path: /var/www/html/html
+        state: absent
 
-- name: Start PHP-FPM service
-  remote_user: ec2-user
-  become: true
-  become_user: root
-  ansible.builtin.service:
-    name: php-fpm
-    state: started
+    - name: Start and enable apache2 service
+      ansible.builtin.service:
+        name: apache2
+        state: started
+        enabled: true
 
-- name: Enable PHP-FPM service
-  remote_user: ec2-user
-  become: true
-  become_user: root
-  ansible.builtin.service:
-    name: php-fpm
-    enabled: true
-
-- name: Set SELinux boolean for httpd_execmem
-  remote_user: ec2-user
-  become: true
-  become_user: root
-  ansible.builtin.command:
-    cmd: sudo setsebool -P httpd_execmem 1
-
-- name: Clone a repo
-  remote_user: ec2-user
-  become: true
-  become_user: root
-  ansible.builtin.git:
-    repo: https://github.com/alagbaski/tooling.git
-    dest: /var/www/html
-    force: yes
-
-- name: Copy HTML content to one level up
-  remote_user: ec2-user
-  become: true
-  become_user: root
-  command: cp -r /var/www/html/html/ /var/www/
-
-- name: Start httpd service, if not started
-  remote_user: ec2-user
-  become: true
-  become_user: root
-  ansible.builtin.service:
-    name: httpd
-    state: started
-
-- name: Recursively remove /var/www/html/html directory
-  remote_user: ec2-user
-  become: true
-  become_user: root
-  ansible.builtin.file:
-    path: /var/www/html/html
-    state: absent
+  handlers:
+    - name: restart apache2
+      ansible.builtin.service:
+        name: apache2
+        state: restarted
