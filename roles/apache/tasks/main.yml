@@ -3,6 +3,17 @@
 - name: Include OS-specific variables.
   include_vars: "{{ ansible_os_family }}.yml"
 
+- name: Check if nginx is running
+  ansible.builtin.service_facts:
+
+- name: Stop and disable nginx if it is running
+  ansible.builtin.service:
+    name: nginx  # Adjust depending on your system's service name (apache2 for Debian/Ubuntu, httpd for RedHat/CentOS)
+    state: stopped
+    enabled: no
+  when: "'nginx' in services and services['nginx'].state == 'running'"
+  become: yes
+
 - name: Include variables for Amazon Linux.
   include_vars: "AmazonLinux.yml"
   when:
