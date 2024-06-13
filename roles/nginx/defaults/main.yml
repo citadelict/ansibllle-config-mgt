@@ -73,7 +73,7 @@ Example vhost below, showing all available options:
   filename: "nginx.conf" # Can be used to set the vhost filename.
 
   # Properties that are only added if defined:
-  server_name_redirect: "www.example.com" # default: N/A
+  server_name_redirect: "www.berryplug.cloud" # default: N/A
   error_page: ""
   access_log: ""
   error_log: ""
