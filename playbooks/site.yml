@@ -1,27 +1,24 @@
 ---
 - name: Include dynamic variables
   hosts: all
+  vars_files:
+    - "../dynamic-assignments/env-vars.yml"  # Ensure this path correctly points to the env-vars.yml file
   tasks:
-    - include_vars: "../dynamic-assignments/env-vars.yml"
-      tags:
-        - always
+    - name: Debug environment variables
+      debug:
+        msg: "Environment type: {{ env_type }}, Load Balancer Required: {{ load_balancer_is_required }}, Enable Nginx: {{ enable_nginx_lb }}, Enable Apache: {{ enable_apache_lb }}"
 
+- name: Loadbalancers assignment
+  hosts: lb
+  pre_tasks:
+    - name: Dynamically adjust Nginx load balancer setting based on Apache LB setting
+      set_fact:
+        enable_nginx_lb: "{{ not enable_apache_lb }}"
+      when: load_balancer_is_required | bool and enable_apache_lb is defined
 
-- import_playbook: "../static-assignments/loadbalancers.yml"
-  when: load_balancer_is_required
+  roles:
+    - role: nginx
+      when: enable_nginx_lb | bool and load_balancer_is_required | bool
 
-# Uncomment and modify the following sections as per the above example when ready to use
-# - name: Webserver assignment
-#   hosts: all
-#   tasks:
-#     - name: Import Webserver playbook
-#       import_playbook: "../static-assignments/uat-webservers.yml"
-
-# - name: DB Server assignment
-#   hosts: all
-#   tasks:
-#     - name: Import DB Server playbook
-#       import_playbook: "../static-assignments/db-servers.yml"
-
-- debug:
-    msg: "Load Balancer Required: {{ load_balancer_is_required }}, Enable Nginx: {{ enable_nginx_lb }}, Enable Apache: {{ enable_apache_lb }}"
+    - role: apache
+      when: enable_apache_lb | bool and load_balancer_is_required | bool
