@@ -1,71 +1,87 @@
 ---
-- name: Install and configure LAMP stack with PHP 7.4 on Ubuntu
+- name: Install and configure Apache with PHP 7.4 on Ubuntu
   hosts: all
   become: true
   tasks:
-    - name: Update apt cache
+    - name: Install Apache
+      remote_user: ubuntu
+      become: true
+      become_user: root
       ansible.builtin.apt:
-        update_cache: yes
-
-    - name: Install necessary packages
-      ansible.builtin.apt:
-        name:
-          - apache2
-          - git
-          - software-properties-common
+        name: "apache2"
         state: present
 
-    - name: Add PHP PPA
-      ansible.builtin.apt_repository:
-        repo: ppa:ondrej/php
-        state: present
-
-    - name: Update apt cache after adding PHP PPA
+    - name: Install Git
+      remote_user: ubuntu
+      become: true
+      become_user: root
       ansible.builtin.apt:
-        update_cache: yes
+        name: "git"
+        state: present
 
     - name: Install PHP and extensions
+      remote_user: ubuntu
+      become: true
+      become_user: root
       ansible.builtin.apt:
         name:
-          - php7.4
-          - php7.4-opcache
-          - php7.4-gd
-          - php7.4-curl
-          - php7.4-mysql
+          - php
+          - php-opcache
+          - php-gd
+          - php-curl
+          - php-mysql
         state: present
-      notify:
-        - restart apache2
 
-    - name: Set SELinux boolean for httpd_execmem
-      ansible.builtin.seboolean:
-        name: httpd_execmem
-        state: true
-        persistent: yes
-      when: ansible_selinux.status == "enabled"
+    - name: Start PHP-FPM service
+      remote_user: ubuntu
+      become: true
+      become_user: root
+      ansible.builtin.service:
+        name: php7.4-fpm
+        state: started
+
+    - name: Enable PHP-FPM service
+      remote_user: ubuntu
+      become: true
+      become_user: root
+      ansible.builtin.service:
+        name: php7.4-fpm
+        enabled: true
+
+    - name: Set SELinux boolean for apache2_execmem
+      remote_user: ubuntu
+      become: true
+      become_user: root
+      ansible.builtin.command:
+        cmd: sudo setsebool -P httpd_execmem 1
 
     - name: Clone a repo
+      remote_user: ubuntu
+      become: true
+      become_user: root
       ansible.builtin.git:
         repo: https://github.com/citadelict/tooling.git
         dest: /var/www/html
         force: yes
 
     - name: Copy HTML content to one level up
-      ansible.builtin.command:
-        cmd: cp -r /var/www/html/html/ /var/www/
-      
-    - name: Recursively remove /var/www/html/html directory
-      ansible.builtin.file:
-        path: /var/www/html/html
-        state: absent
+      remote_user: ubuntu
+      become: true
+      become_user: root
+      command: cp -r /var/www/html/html/ /var/www/
 
-    - name: Start and enable apache2 service
+    - name: Start apache2 service, if not started
+      remote_user: ubuntu
+      become: true
+      become_user: root
       ansible.builtin.service:
         name: apache2
         state: started
-        enabled: true
 
-  handlers:
-    - name: restart apache2
-      ansible.builtin.service:
-        name: apache2
-        state: restarted
+    - name: Recursively remove /var/www/html/html directory
+      remote_user: ubuntu
+      become: true
+      become_user: root
+      ansible.builtin.file:
+        path: /var/www/html/html
+        state: absent
