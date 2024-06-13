@@ -1,5 +1,8 @@
 ---
 - hosts: lb
+  vars_files:
+    - "{{ playbook_dir }}/../../env-vars/{{ env_type }}.yml"
+    
   tasks:
     - name: Dynamically adjust Nginx load balancer setting based on Apache LB setting
       set_fact:
