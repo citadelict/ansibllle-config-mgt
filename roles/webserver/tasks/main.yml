@@ -23,10 +23,10 @@
 
 - name: Install dnf-utils and Remi repository
   dnf:
-   name:
-     - dnf-utils
-     - http://rpms.remirepo.net/enterprise/remi-release-9.rpm
-  state: present
+    name:
+      - dnf-utils
+      - http://rpms.remirepo.net/enterprise/remi-release-9.rpm
+    state: present
 
 
 - name: Reset PHP module
