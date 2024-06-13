@@ -26,6 +26,7 @@
       - php-gd
       - php-curl
       - php-mysql
+      - php-fpm
     state: present
 
 - name: Start PHP-FPM service
