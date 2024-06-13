@@ -1,3 +1,4 @@
 # Ansible Config
 
+commit
 build
