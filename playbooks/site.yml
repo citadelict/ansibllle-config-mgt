@@ -15,7 +15,7 @@
         - always
 
 - name: dbserver assignment
-  ansible.builtin.import_playbook: ../static-assignments/db-server.yml
+  ansible.builtin.import_playbook: ../static-assignments/db-servers.yml
 
 - name: Webservers Tasks
   ansible.builtin.import_playbook: ../static-assignments/uat-webservers.yml
