@@ -8,7 +8,7 @@
         - always
 
 - name: DB Server assignment
-  hosts: uat-dbservers
+  hosts: db-servers
   become: yes
   tasks:
     - ansible.builtin.import_playbook: ../static-assignments/db-servers.yml
