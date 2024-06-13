@@ -10,15 +10,14 @@
 - import_playbook: "../static-assignments/loadbalancers.yml"
   when: load_balancer_is_required
 
-# Uncomment and modify the following sections as per the above example when ready to use
-# - name: Webserver assignment
-#   hosts: all
-#   tasks:
-#     - name: Import Webserver playbook
-#       import_playbook: "../static-assignments/uat-webservers.yml"
+- name: Webserver assignment
+  hosts: all
+  tasks:
+    - name: Import Webserver playbook
+      import_playbook: "../static-assignments/uat-webservers.yml"
 
-# - name: DB Server assignment
-#   hosts: all
-#   tasks:
-#     - name: Import DB Server playbook
-#       import_playbook: "../static-assignments/db-servers.yml"
+- name: DB Server assignment
+  hosts: all
+  tasks:
+    - name: Import DB Server playbook
+      import_playbook: "../static-assignments/db-servers.yml"
