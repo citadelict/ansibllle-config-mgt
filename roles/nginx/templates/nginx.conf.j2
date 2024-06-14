@@ -71,11 +71,29 @@ http {
 {% endblock %}
 
 {% block http_includes %}
- include {{ nginx_conf_path }}/*.conf;
- {% if nginx_conf_path != nginx_vhost_path %}
-    include {{ nginx_vhost_path }}/*;
+    include {{ nginx_conf_path }}/*.conf;
+{% if nginx_conf_path != nginx_vhost_path %}
+    {# include {{ nginx_vhost_path }}/*; #}
+
+{% for vhost in nginx_vhosts %}
+    server {
+        listen {{ vhost.listen }};
+        server_name {{ vhost.server_name }};
+        root {{ vhost.root }};
+        index {{ vhost.index }};
+
+    {% for location in vhost.locations %}
+        location {{ location.path }} {
+            proxy_pass {{ location.proxy_pass }};
+        }
+    {% endfor %}
+  }
+{% endfor %}
+
 {% endif %}
 {% endblock %}
+
+
 
     {% block http_end %}{% endblock %}
 }
