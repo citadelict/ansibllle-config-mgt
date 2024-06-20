@@ -3,6 +3,7 @@ pipeline {
 
   environment {
     ANSIBLE_CONFIG = "${WORKSPACE}/deploy/ansible.cfg"
+    ANSIBLE_HOST_KEY_CHECKING = 'False'
   }
 
   stages {
@@ -14,25 +15,42 @@ pipeline {
       }
     }
 
-    stage("Checkout SCM") {
+    stage('Checkout SCM') {
       steps {
         git branch: 'main', url: 'https://github.com/citadelict/ansibllle-config-mgt.git'
       }
     }
 
-    stage("Prepare Ansible For Execution") {
+    stage('Prepare Ansible For Execution') {
       steps {
         sh 'echo ${WORKSPACE}'
         sh 'sed -i "3 a roles_path=${WORKSPACE}/roles" ${WORKSPACE}/deploy/ansible.cfg'
       }
     }
 
+    stage('Test SSH Connections') {
+      steps {
+        script {
+          def hosts = [
+            [group: 'tooling', ip: '172.31.30.46', user: 'ec2-user'],
+            [group: 'tooling', ip: '172.31.25.209', user: 'ec2-user'],
+            [group: 'nginx', ip: '172.31.26.108', user: 'ubuntu'],
+            [group: 'db', ip: '172.31.24.250', user: 'ubuntu']
+          ]
+          for (host in hosts) {
+            sshagent(['private-key']) {
+              sh "ssh -o StrictHostKeyChecking=no -i /home/ubuntu/.ssh/key.pem ${host.user}@${host.ip} exit"
+            }
+          }
+        }
+      }
+    }
+
     stage('Run Ansible playbook') {
       steps {
-        sshagent(credentials: ['private-key']) {
+        sshagent(['private-key']) {
           ansiblePlaybook(
             become: true,
-            colorized: true,
             credentialsId: 'private-key',
             disableHostKeyChecking: true,
             installation: 'ansible',
@@ -45,7 +63,7 @@ pipeline {
 
     stage('Clean Workspace after build') {
       steps {
-        cleanWs()
+        cleanWs(cleanWhenAborted: true, cleanWhenFailure: true, cleanWhenNotBuilt: true, cleanWhenUnstable: true, deleteDirs: true)
       }
     }
   }
