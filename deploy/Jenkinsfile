@@ -1,11 +1,12 @@
 pipeline {
   agent any
-
-  environment {
-    ANSIBLE_CONFIG = "${WORKSPACE}/deploy/ansible.cfg"
+  
+    environment {
+    ANSIBLE_CONFIG="${WORKSPACE}/deploy/ansible.cfg"
   }
 
-  stages {
+   
+  stages{
     stage("Initial cleanup") {
       steps {
         dir("${WORKSPACE}") {
@@ -13,8 +14,8 @@ pipeline {
         }
       }
     }
-
-    stage("Checkout SCM") {
+  
+    stage(" Checkout SCM") {
       steps {
         git branch: 'main', url: 'https://github.com/citadelict/ansibllle-config-mgt.git'
       }
@@ -22,31 +23,22 @@ pipeline {
 
     stage("Prepare Ansible For Execution") {
       steps {
-        sh 'echo ${WORKSPACE}'
-        sh 'sed -i "3 a roles_path=${WORKSPACE}/roles" ${WORKSPACE}/deploy/ansible.cfg'
+        sh 'echo ${WORKSPACE}' 
+        sh 'sed -i "3 a roles_path=${WORKSPACE}/roles" ${WORKSPACE}/deploy/ansible.cfg' 
       }
     }
 
     stage('Run Ansible playbook') {
-      steps {
-        sshagent(credentials: ['private-key']) {
-          ansiblePlaybook(
-            become: true,
-            colorized: true,
-            credentialsId: 'private-key',
-            disableHostKeyChecking: true,
-            installation: 'ansible',
-            inventory: "${WORKSPACE}/inventory/dev.yml",
-            playbook: "${WORKSPACE}/playbooks/site.yml"
-          )
+        steps {
+          ansiblePlaybook become: true, colorized: true, credentialsId: 'private-key', disableHostKeyChecking: true, installation: 'ansible', inventory: '/inventory/dev.yml', playbook: '/playbooks/site.yml', sudo: true, vaultTmpPath: ''
+         }
+      }
+
+    stage('Clean Workspace after build'){
+        steps{
+          cleanWs()
         }
       }
-    }
+ }
 
-    stage('Clean Workspace after build') {
-      steps {
-        cleanWs()
-      }
-    }
-  }
 }
