@@ -1,14 +1,14 @@
 pipeline {
   agent any
 
-     parameters {
-      string(name: 'inventory', defaultValue: 'dev',  description: 'This is the inventory file for the environment to deploy configuration')
-      string(name: 'ansible_tags', defaultValue: 'webserver', description: 'Ansible tags to run specific roles or tasks')
-    }
-
   environment {
     ANSIBLE_CONFIG = "${WORKSPACE}/deploy/ansible.cfg"
     ANSIBLE_HOST_KEY_CHECKING = 'False'
+  }
+
+  parameters {
+    string(name: 'inventory', defaultValue: 'dev', description: 'The inventory file for the environment to deploy configuration')
+    string(name: 'ansible_tags', defaultValue: 'webserver', description: 'Ansible tags to run specific roles or tasks')
   }
 
   stages {
@@ -59,8 +59,8 @@ pipeline {
             credentialsId: 'private-key',
             disableHostKeyChecking: true,
             installation: 'ansible',
-            inventory: "${WORKSPACE}/${inventory}",
-            playbook: "${WORKSPACE}/playbooks/site.yml"
+            inventory: "${WORKSPACE}/inventory/${params.inventory}.yml",
+            playbook: "${WORKSPACE}/playbooks/site.yml",
             tags: "${params.ansible_tags}"
           )
         }
