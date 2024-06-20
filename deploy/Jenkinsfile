@@ -58,7 +58,7 @@ pipeline {
             credentialsId: 'private-key',
             disableHostKeyChecking: true,
             installation: 'ansible',
-            inventory: "${WORKSPACE}/inventory/dev.yml",
+            inventory: "${WORKSPACE}/${inventory}",
             playbook: "${WORKSPACE}/playbooks/site.yml"
           )
         }
