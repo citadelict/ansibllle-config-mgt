@@ -1,16 +1,16 @@
 ---
 # tasks file for installing Artifactory
 
-- name: Change hostname to Artifactory
-  ansible.builtin.hostname:
-    name: Artifactory
+# - name: Change hostname to Artifactory
+#   ansible.builtin.hostname:
+#     name: Artifactory
 
-- name: Update /etc/hosts with the new hostname
-  ansible.builtin.lineinfile:
-    path: /etc/hosts
-    regexp: '^127\.0\.1\.1\s+.*'
-    line: '127.0.1.1 Artifactory'
-    state: present
+# - name: Update /etc/hosts with the new hostname
+#   ansible.builtin.lineinfile:
+#     path: /etc/hosts
+#     regexp: '^127\.0\.1\.1\s+.*'
+#     line: '127.0.1.1 Artifactory'
+#     state: present
 
 - name: Update Ubuntu OS
   ansible.builtin.apt:
@@ -18,12 +18,18 @@
 
 - name: Add JFrog Artifactory APT repository
   ansible.builtin.copy:
-    content: "deb https://releases.jfrog.io/artifactory/artifactory-debs xenial main"
+    content: "deb https://releases.jfrog.io/artifactory/artifactory-debs bionic main"
     dest: /etc/apt/sources.list.d/artifactory.list
 
-- name: Import repository GPG key
-  ansible.builtin.command:
-    cmd: "curl -fsSL https://releases.jfrog.io/artifactory/api/gpg/key/public | gpg --dearmor -o /etc/apt/trusted.gpg.d/artifactory.gpg"
+- name: Download apt key
+  ansible.builtin.get_url:
+    url: "https://releases.jfrog.io/artifactory/api/gpg/key/public"
+    dest: "/tmp/artifactory.gpg"
+
+- name: Add a key from a file
+  ansible.builtin.apt_key:
+    file: "/tmp/artifactory.gpg"
+    state: present
 
 - name: Update the package list
   ansible.builtin.apt:
