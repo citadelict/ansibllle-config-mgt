@@ -1,43 +1,24 @@
 ---
 # tasks file for artifactory
 
-- name: Install Java 11
-  ansible.builtin.apt:
-    name: openjdk-11-jdk
-    state: present
-
-- name: Install required packages
-  ansible.builtin.apt:
-    name: 
-      - wget
-      - unzip
-    state: present
-
-- name: Configure Java path
-  ansible.builtin.template:
-    src: templates/bash-profile.j2
-    dest: /home/{{ ansible_user }}/.bash_profile
-    owner: "{{ ansible_user }}"
-    group: "{{ ansible_user }}"
-    mode: '0644'
-
-- name: Reload the /etc/profile
-  ansible.builtin.shell: source /home/{{ ansible_user }}/.bash_profile
-  args:
-    executable: /bin/bash
-
-- name: Add the repository key to repos list
-  ansible.builtin.get_url:
-    url: https://releases.jfrog.io/artifactory/artifactory-rpms/artifactory-rpms.repo
-    dest: /etc/apt/sources.list.d/jfrog-artifactory-rpms.list
-    mode: '0644'
-
-- name: Import JFrog GPG key
-  ansible.builtin.apt_key:
-    url: https://releases.jfrog.io/artifactory/api/gpg/key/public
-    state: present
-
 - name: Update apt cache
+  ansible.builtin.apt:
+    update_cache: yes
+
+- name: Install prerequisite packages
+  ansible.builtin.apt:
+    name: gnupg2
+    state: present
+
+- name: Add JFrog GPG key
+  ansible.builtin.command: wget -qO - https://api.bintray.com/orgs/jfrog/keys/gpg/public.key | apt-key add -
+  register: gpg_key
+  changed_when: "'OK' in gpg_key.stdout"
+
+- name: Add JFrog Artifactory repository
+  ansible.builtin.command: echo "deb https://jfrog.bintray.com/artifactory-debs bionic main" | tee /etc/apt/sources.list.d/jfrog.list
+
+- name: Update apt cache again
   ansible.builtin.apt:
     update_cache: yes
 
@@ -46,8 +27,20 @@
     name: jfrog-artifactory-oss
     state: present
 
-- name: Start and enable Artifactory service
+- name: Start Artifactory service
   ansible.builtin.systemd:
     name: artifactory
     state: started
     enabled: yes
+
+- name: Verify Artifactory service status
+  ansible.builtin.systemd:
+    name: artifactory
+    state: started
+    enabled: yes
+    register: artifactory_status
+
+- name: Ensure Artifactory is running
+  ansible.builtin.debug:
+    msg: "Artifactory is installed and running"
+  when: artifactory_status.status.ActiveState == "active"
