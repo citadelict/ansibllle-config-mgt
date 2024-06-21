@@ -3,9 +3,11 @@
 - name: Update apt cache and install dependencies
   ansible.builtin.apt:
     name: 
-      - openjdk-11-jdk
+      - openjdk-17-jdk
       - wget
       - unzip
+      - apt-transport-https
+      - ca-certificates
     state: present
     update_cache: yes
 
@@ -22,24 +24,18 @@
   args:
     executable: /bin/bash
 
-- name: Add the JFrog GPG key
-  ansible.builtin.apt_key:
-    url: https://releases.jfrog.io/artifactory/api/gpg/key/public
-    state: present
+- name: Download JFrog Artifactory package
+  ansible.builtin.get_url:
+    url: https://releases.jfrog.io/artifactory/artifactory-debs/pool/jfrog-artifactory-oss-7.17.13.deb
+    dest: /tmp/jfrog-artifactory-oss-7.17.13.deb
 
-- name: Add the JFrog repository
-  ansible.builtin.apt_repository:
-    repo: deb https://releases.jfrog.io/artifactory/artifactory-debs stable main
-    state: present
-    filename: 'jfrog-artifactory'
+- name: Install JFrog Artifactory package
+  ansible.builtin.command: dpkg -i /tmp/jfrog-artifactory-oss-7.17.13.deb
+  become: yes
 
-- name: Update apt cache after adding JFrog repository
+- name: Ensure dependencies are installed
   ansible.builtin.apt:
-    update_cache: yes
-
-- name: Install artifactory
-  ansible.builtin.apt:
-    name: jfrog-artifactory-oss
+    name: -f
     state: present
 
 - name: Start and enable artifactory
