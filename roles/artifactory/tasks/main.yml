@@ -1,5 +1,5 @@
----
-# tasks file for installing Artifactory
+# ---
+# # tasks file for installing Artifactory
 
 # - name: Change hostname to Artifactory
 #   ansible.builtin.hostname:
@@ -10,7 +10,7 @@
 #     path: /etc/hosts
 #     regexp: '^127\.0\.1\.1\s+.*'
 #     line: '127.0.1.1 Artifactory'
-    state: present
+#     state: present
 
 - name: Install required packages
   ansible.builtin.apt:
