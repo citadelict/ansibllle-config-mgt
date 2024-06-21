@@ -1,16 +1,17 @@
 ---
+# tasks file for artifactory
 
-- name: Sound-check
-  include: 01-pre-requisites.yml
+# - name: Sound-check
+#   include_tasks: 01-pre-requisites.yml
 
 - name: Install Artifactory distr
-  include: 02-install-distr.yml
+  include_tasks: 02-install-distr.yml
 
 - name: Configure Artifactory
-  include: 03-configure-distr.yml
+  include_tasks: 03-configure-distr.yml
 
-- name: Install databse driver
-  include: 04-install-db-driver.yml
+- name: Install database driver
+  include_tasks: 04-install-db-driver.yml
 
 - name: Set up Artifactory as linux service
-  include: 05-install-service.yml
+  include_tasks: 05-install-service.yml
