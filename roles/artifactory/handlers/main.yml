@@ -1,8 +1,7 @@
 ---
-
-- name: Restart Artifactory linux service
-  tags: service
-  service:
-    name: "{{ artifactory_os_service_name }}"
+# handlers file for distribution
+- name: restart artifactory
+  become: yes
+  systemd:
+    name: "{{ artifactory_daemon }}"
     state: restarted
-    sleep: 5
