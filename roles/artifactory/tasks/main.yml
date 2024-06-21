@@ -10,15 +10,21 @@
     name: wget
     state: present
 
-- name: Download JFrog GPG key and add it to apt
-  ansible.builtin.shell: |
-    wget -qO - https://releases.jfrog.io/artifactory/api/gpg/key/public | apt-key add -
-  register: gpg_key
-  changed_when: "'OK' in gpg_key.stdout"
+- name: Download JFrog GPG key
+  ansible.builtin.get_url:
+    url: https://releases.jfrog.io/artifactory/api/gpg/key/public
+    dest: /usr/share/keyrings/jfrog-archive-keyring.gpg
+
+- name: Add JFrog GPG key
+  ansible.builtin.apt_key:
+    file: /usr/share/keyrings/jfrog-archive-keyring.gpg
+    state: present
 
 - name: Add JFrog Artifactory repository
-  ansible.builtin.shell: |
-    echo "deb [arch=amd64] https://releases.jfrog.io/artifactory/artifactory-debs bionic main" > /etc/apt/sources.list.d/jfrog.list
+  ansible.builtin.apt_repository:
+    repo: "deb [signed-by=/usr/share/keyrings/jfrog-archive-keyring.gpg] https://releases.jfrog.io/artifactory/artifactory-debs focal main"
+    state: present
+    filename: jfrog.list
 
 - name: Update apt cache again
   ansible.builtin.apt:
