@@ -5,10 +5,11 @@
     path: /etc/apt/sources.list.d/jfrog.list
     state: absent
 
-- name: Clean up any existing apt keys for JFrog
-  ansible.builtin.apt_key:
-    id: 6B219DCCD7639232
-    state: absent
+- name: Remove all existing apt keys
+  ansible.builtin.shell: |
+    apt-key list | grep -B 1 "JFrog" | grep "pub" | awk '{print $2}' | awk -F '/' '{print $2}' | xargs -I {} apt-key del {}
+  become: yes
+  ignore_errors: yes
 
 - name: Update apt cache
   ansible.builtin.apt:
@@ -20,18 +21,51 @@
     state: latest
 
 - name: Add JFrog GPG key
-  ansible.builtin.command: |
+  ansible.builtin.shell: |
     wget -qO - https://releases.jfrog.io/artifactory/api/gpg/key/public | sudo apt-key add -
   become: yes
+  register: add_key_result
+
+- name: Debug add key result
+  debug:
+    var: add_key_result
+
+- name: Verify the GPG key is added
+  ansible.builtin.shell: apt-key list
+  become: yes
+  register: apt_key_list
+
+- name: Display apt key list
+  debug:
+    var: apt_key_list.stdout_lines
 
 - name: Add JFrog repository
-  ansible.builtin.command: |
+  ansible.builtin.shell: |
     echo "deb https://jfrog.bintray.com/artifactory-debs focal main" | sudo tee /etc/apt/sources.list.d/jfrog.list
   become: yes
+  register: add_repo_result
+
+- name: Debug add repo result
+  debug:
+    var: add_repo_result
+
+- name: Verify the repository file
+  ansible.builtin.shell: cat /etc/apt/sources.list.d/jfrog.list
+  become: yes
+  register: repo_file_content
+
+- name: Display repository file content
+  debug:
+    var: repo_file_content.stdout_lines
 
 - name: Update apt cache after adding JFrog repository
   ansible.builtin.apt:
     update_cache: yes
+  register: apt_cache_update
+
+- name: Debug apt cache update result
+  debug:
+    var: apt_cache_update
 
 - name: Install JFrog Artifactory OSS
   ansible.builtin.apt:
@@ -45,7 +79,7 @@
     enabled: yes
 
 - name: Check status of artifactory service
-  ansible.builtin.command: systemctl status artifactory.service
+  ansible.builtin.shell: systemctl status artifactory.service
   become: yes
   register: result
 
