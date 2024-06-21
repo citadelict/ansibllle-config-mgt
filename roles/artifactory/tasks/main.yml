@@ -1,52 +1,45 @@
----
-# tasks file for artifactory
+# tasks file for artifactory on Ubuntu
 
-- name: install java 11
-  ansible.builtin.yum:
-    name: java-11-openjdk-devel
-    state: present
-
-- name: install java 11
-  ansible.builtin.yum:
-    name: 
-      - wget
-      - unzip
-    state: present
-
-- name: Configuring java path
-  ansible.builtin.template:
-    src: templates/bash-profile.j2
-    dest: .bash_profile
-  
-
-- name: reload the /etc/profile
-  shell: source ~/.bash_profile
-
-
-- name: add the repository key to repos list
-  ansible.builtin.get_url:
-    url:  https://releases.jfrog.io/artifactory/artifactory-rpms/artifactory-rpms.repo 
-    dest: /home/ec2-user/jfrog-artifactory-rpms.repo
-    mode: '0755'
- 
-- name: Copy the downloaded file to the etc repo
-  ansible.builtin.copy:
-    src: /home/ec2-user/jfrog-artifactory-rpms.repo
-    dest: /etc/yum.repos.d/jfrog-artifactory-rpms.repo
-    remote_src: yes
-    follow: yes
-
-- name: update cache
-  ansible.builtin.yum:
+- name: Update apt cache
+  ansible.builtin.apt:
     update_cache: yes
 
-- name: install artifactory
-  ansible.builtin.yum:
+- name: Install python3-update-manager
+  ansible.builtin.apt:
+    name: python3-update-manager
+    state: latest
+
+- name: Add JFrog GPG key
+  ansible.builtin.apt_key:
+    url: https://releases.jfrog.io/artifactory/api/gpg/key/public
+    state: present
+
+- name: Add JFrog repository
+  ansible.builtin.shell: echo "deb https://jfrog.bintray.com/artifactory-debs focal main" | sudo tee /etc/apt/sources.list.d/jfrog.list
+  args:
+    executable: /bin/bash
+
+- name: Update apt cache after adding JFrog repository
+  ansible.builtin.apt:
+    update_cache: yes
+
+- name: Install JFrog Artifactory OSS
+  ansible.builtin.apt:
     name: jfrog-artifactory-oss
     state: present
 
-- name: start and enable artifactory
-  ansible.builtin.service:
+- name: Enable and start artifactory service
+  ansible.builtin.systemd:
     name: artifactory
     state: started
     enabled: yes
+
+- name: Check status of artifactory service
+  ansible.builtin.shell: systemctl status artifactory.service
+  args:
+    executable: /bin/bash
+  register: result
+
+- name: Display artifactory service status
+  debug:
+    var: result.stdout
