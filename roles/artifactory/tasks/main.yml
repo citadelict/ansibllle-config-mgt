@@ -1,17 +1,44 @@
 ---
-# tasks file for artifactory
+# tasks file for installing Artifactory
 
-# - name: Sound-check
-#   include_tasks: 01-pre-requisites.yml
+- name: Update Ubuntu OS
+  ansible.builtin.apt:
+    update_cache: yes
 
-- name: Install Artifactory distr
-  include_tasks: 02-install-distr.yml
+- name: Add JFrog Artifactory APT repository
+  ansible.builtin.copy:
+    content: "deb https://releases.jfrog.io/artifactory/artifactory-debs xenial main"
+    dest: /etc/apt/sources.list.d/artifactory.list
 
-- name: Configure Artifactory
-  include_tasks: 03-configure-distr.yml
+- name: Import repository GPG key
+  ansible.builtin.command:
+    cmd: "curl -fsSL https://releases.jfrog.io/artifactory/api/gpg/key/public | gpg --dearmor -o /etc/apt/trusted.gpg.d/artifactory.gpg"
 
-- name: Install database driver
-  include_tasks: 04-install-db-driver.yml
+- name: Update the package list
+  ansible.builtin.apt:
+    update_cache: yes
 
-- name: Set up Artifactory as linux service
-  include_tasks: 05-install-service.yml
+- name: Install Artifactory
+  ansible.builtin.apt:
+    name: jfrog-artifactory-oss
+    state: present
+
+- name: Start Artifactory service
+  ansible.builtin.systemd:
+    name: artifactory.service
+    state: started
+
+- name: Enable Artifactory service
+  ansible.builtin.systemd:
+    name: artifactory.service
+    enabled: yes
+
+- name: Check Artifactory service status
+  ansible.builtin.systemd:
+    name: artifactory.service
+    register: artifactory_status
+
+- name: Ensure Artifactory is running
+  ansible.builtin.debug:
+    msg: "Artifactory is installed and running"
+  when: artifactory_status.status.ActiveState == "active"
