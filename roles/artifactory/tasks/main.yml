@@ -1,68 +1,48 @@
-# ---
-# # tasks file for installing Artifactory
+# tasks file for artifactory
 
-# - name: Change hostname to Artifactory
-#   ansible.builtin.hostname:
-#     name: Artifactory
-
-# - name: Update /etc/hosts with the new hostname
-#   ansible.builtin.lineinfile:
-#     path: /etc/hosts
-#     regexp: '^127\.0\.1\.1\s+.*'
-#     line: '127.0.1.1 Artifactory'
-#     state: present
-
-- name: Install required packages
+- name: Update and install dependencies
   ansible.builtin.apt:
-    name:
-      - apt-transport-https
-      - ca-certificates
-      - curl
-      - gpg
-    state: latest
+    name: 
+      - openjdk-11-jdk
+      - wget
+      - unzip
+    state: present
+    update_cache: yes
 
-- name: Remove existing JFrog repository list file
-  ansible.builtin.file:
-    path: "/etc/apt/sources.list.d/artifactory.list"
-    state: absent
-  ignore_errors: true
+- name: Configuring java path
+  ansible.builtin.template:
+    src: templates/bash-profile.j2
+    dest: ~/.bash_profile
 
-- name: Download apt key
+- name: Reload the .bash_profile
+  ansible.builtin.shell: source ~/.bash_profile
+  args:
+    executable: /bin/bash
+
+- name: Add the repository key to repos list
   ansible.builtin.get_url:
-    url: "https://releases.jfrog.io/artifactory/api/gpg/key/public"
-    dest: "/usr/share/keyrings/artifactory-keyring.gpg"
-    mode: "0644"
+    url: https://releases.jfrog.io/artifactory/artifactory-rpms/artifactory-rpms.repo
+    dest: /home/ubuntu/jfrog-artifactory-rpms.repo
+    mode: '0755'
 
-- name: Add JFrog Artifactory APT repository
+- name: Copy the downloaded file to the etc repo
   ansible.builtin.copy:
-    content: "deb [signed-by=/usr/share/keyrings/artifactory-keyring.gpg] https://releases.jfrog.io/artifactory/artifactory-debs bionic main"
-    dest: /etc/apt/sources.list.d/artifactory.list
+    src: /home/ubuntu/jfrog-artifactory-rpms.repo
+    dest: /etc/apt/sources.list.d/jfrog-artifactory-rpms.list
+    remote_src: yes
+    follow: yes
 
-- name: Update the package list
+- name: Update apt cache
   ansible.builtin.apt:
     update_cache: yes
 
-- name: Install Artifactory
+- name: Install artifactory
   ansible.builtin.apt:
     name: jfrog-artifactory-oss
     state: present
 
-- name: Start Artifactory service
-  ansible.builtin.systemd:
-    name: artifactory.service
+- name: Start and enable artifactory
+  ansible.builtin.service:
+    name: artifactory
     state: started
-
-- name: Enable Artifactory service
-  ansible.builtin.systemd:
-    name: artifactory.service
     enabled: yes
-
-- name: Check Artifactory service status
-  ansible.builtin.systemd:
-    name: artifactory.service
-    register: artifactory_status
-
-- name: Ensure Artifactory is running
-  ansible.builtin.debug:
-    msg: "Artifactory is installed and running"
-  when: artifactory_status.status.ActiveState == "active"
