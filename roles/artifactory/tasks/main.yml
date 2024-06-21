@@ -7,32 +7,36 @@
   run_once: true
   delegate_to: localhost
 
-# - name: Install yum repository
-#   ansible.builtin.get_url:
-#     url: "https://releases.jfrog.io/artifactory/artifactory-rpms/artifactory-rpms.repo"
-#     dest: /etc/yum.repos.d/bintray-jfrog-artifactory-rpms.repo
-#     mode: "0640"
-#   when:
-#     - ansible_pkg_mgr in [ "dnf", "yum" ]
+# Install necessary packages
+- name: Install prerequisite packages
+  when: ansible_pkg_mgr in ["apt"]
+  ansible.builtin.apt:
+    name: gnupg2
+    state: present
 
+# Configure apt repository
 - name: Configure apt repository
-  when:
-    - ansible_pkg_mgr in [ "apt" ]
+  when: ansible_pkg_mgr in ["apt"]
   block:
-    - name: Trust gpg key
-      ansible.builtin.apt_key:
+    - name: Download JFrog GPG key
+      ansible.builtin.get_url:
         url: "https://releases.jfrog.io/artifactory/api/gpg/key/public"
-        state: present
-        validate_certs: false
+        dest: "/usr/share/keyrings/jfrog-archive-keyring.gpg"
+        mode: '0644'
 
     - name: Install deb repository
       ansible.builtin.apt_repository:
-        repo: "deb https://releases.jfrog.io/artifactory/artifactory-debs {{ ansible_distribution_release | lower }} main"
+        repo: "deb [signed-by=/usr/share/keyrings/jfrog-archive-keyring.gpg] https://releases.jfrog.io/artifactory/artifactory-debs {{ ansible_distribution_release | lower }} main"
         state: present
 
-- name: Install package
-  ansible.builtin.package:
-    name: "{{ artifactory_package }}"
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: yes
+
+- name: Install JFrog Artifactory OSS
+  when: ansible_pkg_mgr in ["apt"]
+  ansible.builtin.apt:
+    name: jfrog-artifactory-oss
     state: present
 
 - name: Ensure artifactory_file_store_dir exists
