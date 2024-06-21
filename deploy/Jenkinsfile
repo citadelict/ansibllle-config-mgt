@@ -41,7 +41,7 @@ pipeline {
             // [group: 'tooling', ip: '172.31.25.209', user: 'ec2-user'],
             // [group: 'nginx', ip: '172.31.26.108', user: 'ubuntu'],
             // [group: 'db', ip: '172.31.24.250', user: 'ubuntu']
-            [group: 'artifactory', ip: '172.31.17.90', user: 'ec2-user'],
+            [group: 'artifactory', ip: '172.31.30.118', user: 'ubuntu'],
           ]
           for (host in hosts) {
             sshagent(['private-key']) {

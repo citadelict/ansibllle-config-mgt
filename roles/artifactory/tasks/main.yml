@@ -1,52 +1,53 @@
 ---
 # tasks file for artifactory
 
-- name: install java 11
-  ansible.builtin.yum:
-    name: java-11-openjdk-devel
+- name: Install Java 11
+  ansible.builtin.apt:
+    name: openjdk-11-jdk
     state: present
 
-- name: install java 11
-  ansible.builtin.yum:
+- name: Install required packages
+  ansible.builtin.apt:
     name: 
       - wget
       - unzip
     state: present
 
-- name: Configuring java path
+- name: Configure Java path
   ansible.builtin.template:
     src: templates/bash-profile.j2
-    dest: .bash_profile
-  
+    dest: /home/{{ ansible_user }}/.bash_profile
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: '0644'
 
-- name: reload the /etc/profile
-  shell: source ~/.bash_profile
+- name: Reload the /etc/profile
+  ansible.builtin.shell: source /home/{{ ansible_user }}/.bash_profile
+  args:
+    executable: /bin/bash
 
-
-- name: add the repository key to repos list
+- name: Add the repository key to repos list
   ansible.builtin.get_url:
-    url:  https://releases.jfrog.io/artifactory/artifactory-rpms/artifactory-rpms.repo 
-    dest: /home/ec2-user/jfrog-artifactory-rpms.repo
-    mode: '0755'
- 
-- name: Copy the downloaded file to the etc repo
-  ansible.builtin.copy:
-    src: /home/ec2-user/jfrog-artifactory-rpms.repo
-    dest: /etc/yum.repos.d/jfrog-artifactory-rpms.repo
-    remote_src: yes
-    follow: yes
+    url: https://releases.jfrog.io/artifactory/artifactory-rpms/artifactory-rpms.repo
+    dest: /etc/apt/sources.list.d/jfrog-artifactory-rpms.list
+    mode: '0644'
 
-- name: update cache
-  ansible.builtin.yum:
+- name: Import JFrog GPG key
+  ansible.builtin.apt_key:
+    url: https://releases.jfrog.io/artifactory/api/gpg/key/public
+    state: present
+
+- name: Update apt cache
+  ansible.builtin.apt:
     update_cache: yes
 
-- name: install artifactory
-  ansible.builtin.yum:
+- name: Install JFrog Artifactory OSS
+  ansible.builtin.apt:
     name: jfrog-artifactory-oss
     state: present
 
-- name: start and enable artifactory
-  ansible.builtin.service:
+- name: Start and enable Artifactory service
+  ansible.builtin.systemd:
     name: artifactory
     state: started
     enabled: yes
