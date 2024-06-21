@@ -1,62 +1,27 @@
 # tasks file for artifactory on Ubuntu
 
-- name: Clean up any existing sources list for JFrog
-  ansible.builtin.file:
-    path: /etc/apt/sources.list.d/jfrog.list
-    state: absent
-
-- name: Remove all existing apt keys related to JFrog
-  ansible.builtin.shell: |
-    apt-key list | grep -B 1 "JFrog" | grep "pub" | awk '{print $2}' | awk -F '/' '{print $2}' | xargs -I {} apt-key del {}
-  become: yes
-  ignore_errors: yes
-
-- name: Ensure necessary dependencies are installed
+- name: Update apt cache
   ansible.builtin.apt:
-    name: 
-      - software-properties-common
-      - apt-transport-https
-      - ca-certificates
-      - wget
-    state: present
     update_cache: yes
 
+- name: Ensure python3-update-manager is installed from focal-updates
+  ansible.builtin.command:
+    cmd: apt-get install -y python3-update-manager
+  become: yes
+
 - name: Add JFrog GPG key
-  ansible.builtin.command: |
+  ansible.builtin.shell: |
     wget -qO - https://releases.jfrog.io/artifactory/api/gpg/key/public | apt-key add -
   become: yes
 
-- name: Verify the GPG key is added
-  ansible.builtin.shell: apt-key list
-  become: yes
-  register: apt_key_list
-
-- name: Display apt key list
-  debug:
-    var: apt_key_list.stdout_lines
-
 - name: Add JFrog repository
-  ansible.builtin.command: |
-    echo "deb https://releases.jfrog.io/artifactory/artifactory-debs focal main" | tee /etc/apt/sources.list.d/jfrog.list
+  ansible.builtin.shell: |
+    echo "deb https://jfrog.bintray.com/artifactory-debs focal main" | tee /etc/apt/sources.list.d/jfrog.list
   become: yes
-
-- name: Verify the repository file
-  ansible.builtin.shell: cat /etc/apt/sources.list.d/jfrog.list
-  become: yes
-  register: repo_file_content
-
-- name: Display repository file content
-  debug:
-    var: repo_file_content.stdout_lines
 
 - name: Update apt cache after adding JFrog repository
   ansible.builtin.apt:
     update_cache: yes
-  register: apt_cache_update
-
-- name: Debug apt cache update result
-  debug:
-    var: apt_cache_update
 
 - name: Install JFrog Artifactory OSS
   ansible.builtin.apt:
@@ -70,7 +35,7 @@
     enabled: yes
 
 - name: Check status of artifactory service
-  ansible.builtin.shell: systemctl status artifactory.service
+  ansible.builtin.command: systemctl status artifactory.service
   become: yes
   register: result
 
