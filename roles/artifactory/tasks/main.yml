@@ -10,7 +10,7 @@
 #     path: /etc/hosts
 #     regexp: '^127\.0\.1\.1\s+.*'
 #     line: '127.0.1.1 Artifactory'
-#     state: present
+    state: present
 
 - name: Install required packages
   ansible.builtin.apt:
@@ -24,12 +24,12 @@
 - name: Download apt key
   ansible.builtin.get_url:
     url: "https://releases.jfrog.io/artifactory/api/gpg/key/public"
-    dest: "/etc/apt/keyrings/artifactory-apt-keyring.asc"
+    dest: "/usr/share/keyrings/artifactory-apt-keyring.asc"
     mode: "0644"
 
 - name: Add JFrog Artifactory APT repository
   ansible.builtin.apt_repository:
-    repo: "deb [signed-by=/etc/apt/keyrings/artifactory-apt-keyring.asc] https://releases.jfrog.io/artifactory/artifactory-debs bionic main"
+    repo: "deb [signed-by=/usr/share/keyrings/artifactory-apt-keyring.asc] https://releases.jfrog.io/artifactory/artifactory-debs bionic main"
     state: present
 
 - name: Update the package list
