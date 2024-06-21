@@ -1,53 +1,94 @@
----
+# defaults file for artifactory
 
-artifactory_version: "7.3.2" # To check up latest version just make GET request: https://api.bintray.com/content/jfrog/artifactory/org/artifactory/oss/jfrog-artifactory-oss/$latest/jfrog-artifactory-oss-$latest-linux.tar.gz;bt_package=jfrog-artifactory-oss
+# The version of artifactory to install
+artifactory_version: 7.24.3
 
-artifactory_username: "admin" # Admin web account (templates/bootstrap.creds)
-artifactory_password: "password" # Admin web account (templates/bootstrap.creds)
+# Set this to true when SSL is enabled (to use artifactory_nginx_ssl role), default to false (implies artifactory uses artifactory_nginx role )
+artifactory_nginx_ssl_enabled: false
 
-artifactory_port: 8081 # Main port when access Artifactory with browser (templates/system.yaml)
-artifactory_ui_port: 8082 # Web UI port for working with Artifactory (templates/system.yaml)
+# Set this to false when ngnix is disabled, defaults to true (implies artifactory uses artifactory_nginx role )
+artifactory_nginx_enabled: false
 
-artifactory_corp_maven_repo: 'com.acme.corp' # Maven repo will be created by default (templates/artifactory.config.import.xml)
+# Provide single node license
+# artifactory_single_license:
 
-jfrog_home: "/opt/jfrog" # (tasks/)
-artifactory_home: "{{ jfrog_home }}/artifactory" # (tasks/)
+# Provide individual (HA) licenses file separated by new line and 2-space indentation and set artifactory_ha_enabled: true.
+# Example:
+# artifactory_licenses: |-
+#   <license_1>
 
-artifactory_java_max_mb: 512
-artifactory_java_opts: "-Xms{{ artifactory_java_max_mb }}m -Xmx{{ artifactory_java_max_mb }}m" # (templates/system.yaml)
+#   <license_2>
 
-# templates/system.yaml:shared:database
-artifactory_database_type: 'default derby' # | derby | postgresql | mysql | oracle | mssql | mariadb
-## Showcases for other databases:
-# Non-default Derby
-# artifactory_database_type: 'derby'
-# artifactory_database: "{{ artifactory_home }}/var/data"
-# artifactory_database_user: "{{ artifactory_username }}"
-# artifactory_database_password: "{{ artifactory_password }}"
-# Postgres: https://www.jfrog.com/confluence/display/JFROG/PostgreSQL
-# artifactory_database_type: 'postgresql'
-# artifactory_database: 'localhost:5432/artifactory'
-# artifactory_database_user: "{{ artifactory_username }}"
-# artifactory_database_password: "{{ artifactory_password }}"
-# MySQL: https://www.jfrog.com/confluence/display/JFROG/MySQL
-# artifactory_database_type: 'mysql'
-# artifactory_database: 'localhost:3306/artifactory?characterEncoding=UTF-8&elideSetAutoCommits=true&useSSL=false'
-# artifactory_database_user: "{{ artifactory_username }}"
-# artifactory_database_password: "{{ artifactory_password }}"
-# Oracle: https://www.jfrog.com/confluence/display/JFROG/Oracle
-# artifactory_database_type: 'oracle'
-# artifactory_database: 'thin:@localhost:1521:artifactory'
-# artifactory_database_user: "{{ artifactory_username }}"
-# artifactory_database_password: "{{ artifactory_password }}"
-# MS SQL: https://www.jfrog.com/confluence/display/JFROG/Microsoft+SQL+Server
-# artifactory_database_type: 'mssql'
-# artifactory_database: 'localhost:1433;databaseName=artifactory;sendStringParametersAsUnicode=false;applicationName=Artifactory Binary Repository'
-# artifactory_database_user: "{{ artifactory_username }}"
-# artifactory_database_password: "{{ artifactory_password }}"
-# MariaDB: https://www.jfrog.com/confluence/display/JFROG/MariaDB
-# artifactory_database_type: 'mariadb'
-# artifactory_database: 'localhost:3306/artifactory?characterEncoding=UTF-8&elideSetAutoCommits=true&useSSL=false'
-# artifactory_database_user: "{{ artifactory_username }}"
-# artifactory_database_password: "{{ artifactory_password }}"
+#   <license_3>
 
-ansible_become_method: sudo
+# To enable HA, set to true
+artifactory_ha_enabled: false
+
+# By default, all nodes are primary (CNHA) - https://www.jfrog.com/confluence/display/JFROG/High+Availability#HighAvailability-Cloud-NativeHighAvailability
+artifactory_taskAffinity: any
+
+# The location where Artifactory should install
+jfrog_home_directory: /opt/jfrog
+
+# Pick the Artifactory flavour to install, can be also cpp-ce/jcr/pro
+artifactory_flavour: pro
+
+artifactory_extra_java_opts: -server -Xms512m -Xmx2g -Xss256k -XX:+UseG1GC
+artifactory_system_yaml_template: system.yaml.j2
+artifactory_tar_file_name: jfrog-artifactory-pro-{{ artifactory_version }}-linux.tar.gz
+artifactory_home: "{{ jfrog_home_directory }}/artifactory"
+artifactory_tar: https://releases.jfrog.io/artifactory/artifactory-pro/org/artifactory/pro/jfrog-artifactory-pro/{{ artifactory_version }}/{{ artifactory_tar_file_name }}
+artifactory_untar_home: "{{ jfrog_home_directory }}/artifactory-{{ artifactory_flavour }}-{{ artifactory_version }}"
+
+# Timeout in seconds for URL request
+artifactory_download_timeout: 10
+
+postgres_driver_version: 42.2.23
+postgres_driver_download_url: https://repo1.maven.org/maven2/org/postgresql/postgresql/{{ postgres_driver_version }}/postgresql-{{ postgres_driver_version }}.jar
+
+artifactory_user: artifactory
+artifactory_group: artifactory
+
+artifactory_daemon: artifactory
+
+artifactory_uid: 1030
+artifactory_gid: 1030
+
+# if this is an upgrade
+artifactory_upgrade_only: false
+
+#default username and password
+artifactory_admin_username: admin
+artifactory_admin_password: password
+
+artifactory_service_file: /lib/systemd/system/artifactory.service
+
+# Provide binarystore XML content below with 2-space indentation
+artifactory_binarystore: |-
+  <?xml version="1.0" encoding="UTF-8"?>
+  <config version="2">
+      <chain template="cluster-file-system"/>
+  </config>
+# Provide systemyaml content below with 2-space indentation
+artifactory_systemyaml: |-
+  configVersion: 1
+  shared:
+    security:
+      joinKey: "{{ join_key }}"
+    extraJavaOpts: "{{ artifactory_extra_java_opts }}"
+    node:
+      id: {{ ansible_hostname }}
+      ip: {{ ansible_host }}
+      taskAffinity: {{ artifactory_taskAffinity }}
+      haEnabled: {{ artifactory_ha_enabled }}
+    database:
+      type: "{{ artifactory_db_type }}"
+      driver: "{{ artifactory_db_driver }}"
+      url: "{{ artifactory_db_url }}"
+      username: "{{ artifactory_db_user }}"
+      password: "{{ artifactory_db_password }}"
+  router:
+    entrypoints:
+      internalPort: 8046
+# Note: artifactory_systemyaml_override is by default false,  if you want to change default artifactory_systemyaml
+artifactory_systemyaml_override: false
