@@ -12,23 +12,24 @@
 #     line: '127.0.1.1 Artifactory'
 #     state: present
 
-- name: Update Ubuntu OS
+- name: Install required packages
   ansible.builtin.apt:
-    update_cache: yes
-
-- name: Add JFrog Artifactory APT repository
-  ansible.builtin.copy:
-    content: "deb https://releases.jfrog.io/artifactory/artifactory-debs bionic main"
-    dest: /etc/apt/sources.list.d/artifactory.list
+    name:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - gpg
+    state: latest
 
 - name: Download apt key
   ansible.builtin.get_url:
     url: "https://releases.jfrog.io/artifactory/api/gpg/key/public"
-    dest: "/tmp/artifactory.gpg"
+    dest: "/etc/apt/keyrings/artifactory-apt-keyring.asc"
+    mode: "0644"
 
-- name: Add a key from a file
-  ansible.builtin.apt_key:
-    file: "/tmp/artifactory.gpg"
+- name: Add JFrog Artifactory APT repository
+  ansible.builtin.apt_repository:
+    repo: "deb [signed-by=/etc/apt/keyrings/artifactory-apt-keyring.asc] https://releases.jfrog.io/artifactory/artifactory-debs bionic main"
     state: present
 
 - name: Update the package list
