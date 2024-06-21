@@ -21,19 +21,7 @@
       - gpg
     state: latest
 
-- name: Remove conflicting JFrog repository if it exists
-  ansible.builtin.apt_repository:
-    repo: "deb [signed-by=/usr/share/keyrings/jfrog-archive-keyring.gpg] https://releases.jfrog.io/artifactory/artifactory-debs bionic main"
-    state: absent
-  ignore_errors: true
-
-- name: Remove any existing key file
-  ansible.builtin.file:
-    path: "/usr/share/keyrings/jfrog-archive-keyring.gpg"
-    state: absent
-  ignore_errors: true
-
-- name: Remove the JFrog repository list if exists
+- name: Remove existing JFrog repository list file
   ansible.builtin.file:
     path: "/etc/apt/sources.list.d/artifactory.list"
     state: absent
@@ -42,13 +30,13 @@
 - name: Download apt key
   ansible.builtin.get_url:
     url: "https://releases.jfrog.io/artifactory/api/gpg/key/public"
-    dest: "/usr/share/keyrings/artifactory-apt-keyring.asc"
+    dest: "/usr/share/keyrings/artifactory-keyring.gpg"
     mode: "0644"
 
 - name: Add JFrog Artifactory APT repository
-  ansible.builtin.apt_repository:
-    repo: "deb [signed-by=/usr/share/keyrings/artifactory-apt-keyring.asc] https://releases.jfrog.io/artifactory/artifactory-debs bionic main"
-    state: present
+  ansible.builtin.copy:
+    content: "deb [signed-by=/usr/share/keyrings/artifactory-keyring.gpg] https://releases.jfrog.io/artifactory/artifactory-debs bionic main"
+    dest: /etc/apt/sources.list.d/artifactory.list
 
 - name: Update the package list
   ansible.builtin.apt:
