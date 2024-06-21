@@ -1,5 +1,5 @@
-# ---
-# # tasks file for installing Artifactory
+---
+# tasks file for installing Artifactory
 
 # - name: Change hostname to Artifactory
 #   ansible.builtin.hostname:
@@ -20,6 +20,16 @@
       - curl
       - gpg
     state: latest
+
+- name: Remove existing JFrog repository
+  ansible.builtin.apt_repository:
+    repo: "deb [signed-by=/usr/share/keyrings/jfrog-archive-keyring.gpg] https://releases.jfrog.io/artifactory/artifactory-debs bionic main"
+    state: absent
+
+- name: Remove key file if it exists
+  ansible.builtin.file:
+    path: "/usr/share/keyrings/jfrog-archive-keyring.gpg"
+    state: absent
 
 - name: Download apt key
   ansible.builtin.get_url:
