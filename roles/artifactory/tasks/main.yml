@@ -1,5 +1,15 @@
 # tasks file for artifactory on Ubuntu
 
+- name: Clean up any existing sources list for JFrog
+  ansible.builtin.file:
+    path: /etc/apt/sources.list.d/jfrog.list
+    state: absent
+
+- name: Clean up any existing apt keys for JFrog
+  ansible.builtin.apt_key:
+    id: 6B219DCCD7639232
+    state: absent
+
 - name: Update apt cache
   ansible.builtin.apt:
     update_cache: yes
@@ -15,9 +25,9 @@
     state: present
 
 - name: Add JFrog repository
-  ansible.builtin.shell: echo "deb https://jfrog.bintray.com/artifactory-debs focal main" | sudo tee /etc/apt/sources.list.d/jfrog.list
-  args:
-    executable: /bin/bash
+  ansible.builtin.apt_repository:
+    repo: "deb https://releases.jfrog.io/artifactory/artifactory-debs bionic main"
+    state: present
 
 - name: Update apt cache after adding JFrog repository
   ansible.builtin.apt:
