@@ -5,27 +5,13 @@
   ansible.builtin.apt:
     update_cache: yes
 
-- name: Install prerequisite packages
-  ansible.builtin.apt:
-    name: gnupg2
-    state: present
-
 - name: Download JFrog GPG key
-  ansible.builtin.get_url:
-    url: https://releases.jfrog.io/artifactory/api/gpg/key/public
-    dest: /usr/share/keyrings/jfrog-archive-keyring.gpg
+  ansible.builtin.shell:
+    cmd: wget -qO - https://releases.jfrog.io/artifactory/api/gpg/key/public | sudo apt-key add -
 
 - name: Add JFrog Artifactory repository
-  ansible.builtin.copy:
-    content: "deb [signed-by=/usr/share/keyrings/jfrog-archive-keyring.gpg] https://releases.jfrog.io/artifactory/artifactory-debs bionic main"
-    dest: /etc/apt/sources.list.d/jfrog.list
-
-- name: Ensure correct permissions on keyring
-  ansible.builtin.file:
-    path: /usr/share/keyrings/jfrog-archive-keyring.gpg
-    owner: root
-    group: root
-    mode: '0644'
+  ansible.builtin.shell:
+    cmd: echo "deb https://jfrog.bintray.com/artifactory-debs focal main" | sudo tee /etc/apt/sources.list.d/jfrog.list
 
 - name: Update apt cache again
   ansible.builtin.apt:
@@ -41,15 +27,3 @@
     name: artifactory
     state: started
     enabled: yes
-
-- name: Verify Artifactory service status
-  ansible.builtin.systemd:
-    name: artifactory
-    state: started
-    enabled: yes
-    register: artifactory_status
-
-- name: Ensure Artifactory is running
-  ansible.builtin.debug:
-    msg: "Artifactory is installed and running"
-  when: artifactory_status.status.ActiveState == "active"
