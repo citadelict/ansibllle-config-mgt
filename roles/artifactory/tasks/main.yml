@@ -10,12 +10,14 @@
     id: 6B219DCCD7639232
     state: absent
 
-- name: Ensure python3-update-manager is installed from focal-updates
+- name: Update apt cache
+  ansible.builtin.apt:
+    update_cache: yes
+
+- name: Ensure python3-update-manager is installed
   ansible.builtin.apt:
     name: python3-update-manager
     state: latest
-    default_release: focal-updates
-    update_cache: yes
 
 - name: Add JFrog GPG key
   ansible.builtin.command: |
