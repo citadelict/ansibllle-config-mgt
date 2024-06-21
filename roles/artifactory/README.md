@@ -1,100 +1,94 @@
-# [Ansible role artifactory](#artifactory)
+JFrog Artifactory OSS Ansible Role
+==================================
+The simpliest Ansible role for JFrog Artifactory OSS 7 that works on Ubuntu 19.10 hosts with init.d.
 
-Install and configure artifactory on your system.
+Role includes all *key Artifactory config files* in [templates/](https://github.com/eugene-krivosheyev/ansible-artifactory-role/tree/master/templates/) so you can widely customize your Artifactory installation.
 
-|GitHub|GitLab|Downloads|Version|
-|------|------|---------|-------|
-|[![github](https://github.com/robertdebock/ansible-role-artifactory/workflows/Ansible%20Molecule/badge.svg)](https://github.com/robertdebock/ansible-role-artifactory/actions)|[![gitlab](https://gitlab.com/robertdebock-iac/ansible-role-artifactory/badges/master/pipeline.svg)](https://gitlab.com/robertdebock-iac/ansible-role-artifactory)|[![downloads](https://img.shields.io/ansible/role/d/robertdebock/artifactory)](https://galaxy.ansible.com/robertdebock/artifactory)|[![Version](https://img.shields.io/github/release/robertdebock/ansible-role-artifactory.svg)](https://github.com/robertdebock/ansible-role-artifactory/releases/)|
 
-## [Example Playbook](#example-playbook)
+Role requirements
+-----------------
+- _Unzip_. This role requires unzip package and installs it automatically by itself. If you don't need it, you can remove it in post_tasks section of your playbook.
+- _Production Database_. Artifactory uses simple lightweigth database called Derby by default. If you don't plan to host high-load/fail-over solution with your Artifactory instance, Derby could be enough. If you plan to use production level database, you have to install and cofigure it yourself in your playbook. Already done Ansible Galaxy roles will help, e.g. geerlingguy.postgresql, geerlingguy.mysql, etc. After you describe database installation and configuration with your playbook, [it required to configure Artifactory](https://www.jfrog.com/confluence/display/JFROG/Configuring+the+Database) to work with your database. After you add driver downloading, creating database itself and database user to your playbook, you're required to configure Atrifactory role to work with your just configured database by [setting properties artifactory_database_*](https://github.com/eugene-krivosheyev/ansible-artifactory-role/blob/master/defaults/main.yml) to correct values. As an example you can take a look at the [test playbook with Postgres](https://github.com/eugene-krivosheyev/ansible-artifactory-role/blob/master/tests/test.yml).
 
-This example is taken from [`molecule/default/converge.yml`](https://github.com/robertdebock/ansible-role-artifactory/blob/master/molecule/default/converge.yml) and is tested on each push, pull request and release.
 
-```yaml
----
-- name: Converge
-  hosts: all
-  become: true
-  gather_facts: true
+[Role variables](https://github.com/eugene-krivosheyev/ansible-artifactory-role/blob/master/defaults/main.yml)
+----------------
+Variable 'ansible_become_method' is used to generate service script. It have default value 'sudo' so if your target host don't have sudo command you have to explicitly set it to 'su'. Because it depends on target hosts linux distr better set it on per-host basis in your inventory file. See [example](https://github.com/eugene-krivosheyev/ansible-artifactory-role/blob/master/tests/inventory.yml) of setting 'ansible_become_method' variable for inventory hosts.
 
+Other variables that could be customized described in [defaults/main.yml](https://github.com/eugene-krivosheyev/ansible-artifactory-role/blob/master/defaults/main.yml).
+
+
+[Example _requirements.yml_](https://github.com/eugene-krivosheyev/ansible-artifactory-role/blob/master/tests/requirements.yml) to add this role to your playbook
+------------------------------------------------------------
+```yml
+- eugene_krivosheyev.artifactory
+```
+
+
+[Example playbook](https://github.com/eugene-krivosheyev/ansible-artifactory-role/blob/master/tests/test.yml)
+------------------
+```yml
+- hosts: ci_server
   roles:
-    - role: robertdebock.artifactory
+    - role: eugene_krivosheyev.artifactory
+      artifactory_port: 8081
+      artifactory_ui_port: 8082
+      artifactory_username: admin
+      artifactory_password: P@ssw0rd
 ```
+Also you can refer [test role usage](https://github.com/eugene-krivosheyev/ansible-artifactory-role/blob/master/tests/test.yml) for example.
 
-The machine needs to be prepared. In CI this is done using [`molecule/default/prepare.yml`](https://github.com/robertdebock/ansible-role-artifactory/blob/master/molecule/default/prepare.yml):
 
-```yaml
----
-- name: Prepare
-  hosts: all
-  gather_facts: false
-  become: true
+Known issues
+============
+1. You may face issue if target host don't have command 'sudo'
+-------------------------------------------------------------- 
+In this case just set default priviledge escalation command to 'su'. Because it depends on target hosts linux distr better set it on per-host basis in your inventory file. See [example](https://github.com/eugene-krivosheyev/ansible-artifactory-role/blob/master/tests/inventory.yml) of setting 'ansible_become_method' variable for inventory hosts.
 
-  roles:
-    - role: robertdebock.bootstrap
-    - role: robertdebock.core_dependencies
+2. You may face issue with 'su' command timeouts if it set as default privilege escalation command for some hosts
+-----------------------------------------------------------------------------------------------------------------
+```bash
+TASK [geerlingguy.postgresql : Ensure PostgreSQL Python libraries are installed.] ********
+fatal: [test_host]: FAILED! => {"msg": "Timeout (12s) waiting for privilege escalation prompt: "}
 ```
+In this case set default priviledge escalation command to 'sudo' with 'ansible_become_method' variable explicitely. Better set it on per-host basis in your inventory file. 
+Or just skip setting 'ansible_become_method' at all because of its default is 'sudo' already. 
 
-Also see a [full explanation and example](https://robertdebock.nl/how-to-use-these-roles.html) on how to use these roles.
-
-## [Role Variables](#role-variables)
-
-The default values for the variables are set in [`defaults/main.yml`](https://github.com/robertdebock/ansible-role-artifactory/blob/master/defaults/main.yml):
-
-```yaml
----
-# defaults file for artifactory
-
-# The location where Artifactory should store data.
-artifactory_file_store_dir: /data
-
-# The type of installation of artifactory.
-# Choose from "oss", "jcr" or "cpp-ce".
-artifactory_flavour: oss
+3. Artifactory tries to start but then get permanent error at web interface
+---------------------------------------------------------------------------
+```json
+{
+  "errors" : [ {
+    "status" : 500,
+    "message" : "Artifactory failed to initialize: check Artifactory logs for errors."
+  } ]
+}
 ```
+And in logs (e.g. */opt/jfrog/artifactory/var/log/console.log*) you have
+```log
+.
+Could not validate router Check-url: http://::1:8082/router/api/v1/system/ping
+.
+.
+.
+Registration with router on URL http://localhost:8046 failed with error: UNAVAILABLE: io exception.
+Registration with router on URL http://localhost:8046 failed with error: UNAVAILABLE: io exception.
+Registration with router on URL http://localhost:8046 failed with error: UNAVAILABLE: io exception.
+.
+```
+This means that one of Artifactory component uses 'localhost' landed to IPv6's "localhost" called '::1'.
 
-## [Requirements](#requirements)
+To fix you can try [force Java to use IPv4](https://superuser.com/questions/453298/how-to-force-java-to-use-ipv4-instead-ipv6) or 
+manually remove binding of IPv6 from 'localhost' at your */etc/hosts*:
+```/etc/hosts
+127.0.0.1       localhost   
+::1             localhost  # <-- Remove any type of such binding "::1 -> localhost" at any string 
+::1             ip6-localhost ip6-loopback
+ff02::1         ip6-allnodes
+ff02::2         ip6-allrouters
+```
+In case of reproducing issue just [turn IPv6 off](https://www.techrepublic.com/article/how-to-disable-ipv6-through-grub-in-linux/).
 
-- pip packages listed in [requirements.txt](https://github.com/robertdebock/ansible-role-artifactory/blob/master/requirements.txt).
-
-## [State of used roles](#state-of-used-roles)
-
-The following roles are used to prepare a system. You can prepare your system in another way.
-
-| Requirement | GitHub | GitLab |
-|-------------|--------|--------|
-|[robertdebock.bootstrap](https://galaxy.ansible.com/robertdebock/bootstrap)|[![Build Status GitHub](https://github.com/robertdebock/ansible-role-bootstrap/workflows/Ansible%20Molecule/badge.svg)](https://github.com/robertdebock/ansible-role-bootstrap/actions)|[![Build Status GitLab](https://gitlab.com/robertdebock-iac/ansible-role-bootstrap/badges/master/pipeline.svg)](https://gitlab.com/robertdebock-iac/ansible-role-bootstrap)|
-|[robertdebock.core_dependencies](https://galaxy.ansible.com/robertdebock/core_dependencies)|[![Build Status GitHub](https://github.com/robertdebock/ansible-role-core_dependencies/workflows/Ansible%20Molecule/badge.svg)](https://github.com/robertdebock/ansible-role-core_dependencies/actions)|[![Build Status GitLab](https://gitlab.com/robertdebock-iac/ansible-role-core_dependencies/badges/master/pipeline.svg)](https://gitlab.com/robertdebock-iac/ansible-role-core_dependencies)|
-
-## [Context](#context)
-
-This role is a part of many compatible roles. Have a look at [the documentation of these roles](https://robertdebock.nl/) for further information.
-
-Here is an overview of related roles:
-![dependencies](https://raw.githubusercontent.com/robertdebock/ansible-role-artifactory/png/requirements.png "Dependencies")
-
-## [Compatibility](#compatibility)
-
-This role has been tested on these [container images](https://hub.docker.com/u/robertdebock):
-
-|container|tags|
-|---------|----|
-|[EL](https://hub.docker.com/r/robertdebock/enterpriselinux)|8, 9|
-
-The minimum version of Ansible required is 2.12, tests have been done to:
-
-- The previous version.
-- The current version.
-- The development version.
-
-If you find issues, please register them in [GitHub](https://github.com/robertdebock/ansible-role-artifactory/issues).
-
-## [License](#license)
-
-[Apache-2.0](https://github.com/robertdebock/ansible-role-artifactory/blob/master/LICENSE).
-
-## [Author Information](#author-information)
-
-[robertdebock](https://robertdebock.nl/)
-
-Please consider [sponsoring me](https://github.com/sponsors/robertdebock).
+License
+=======
+BSD

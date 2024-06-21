@@ -1,72 +1,16 @@
 ---
-# tasks file for artifactory
 
-- name: Import assert.yml
-  ansible.builtin.import_tasks:
-    file: assert.yml
-  run_once: true
-  delegate_to: localhost
+- name: Sound-check
+  include: 01-pre-requisites.yml
 
-# Install necessary packages
-- name: Install prerequisite packages
-  when: ansible_pkg_mgr in ["apt"]
-  ansible.builtin.apt:
-    name: gnupg2
-    state: present
+- name: Install Artifactory distr
+  include: 02-install-distr.yml
 
-# Configure apt repository
-- name: Configure apt repository
-  when: ansible_pkg_mgr in ["apt"]
-  block:
-    - name: Download JFrog GPG key
-      ansible.builtin.get_url:
-        url: "https://releases.jfrog.io/artifactory/api/gpg/key/public"
-        dest: "/usr/share/keyrings/jfrog-archive-keyring.gpg"
-        mode: '0644'
+- name: Configure Artifactory
+  include: 03-configure-distr.yml
 
-    - name: Install deb repository
-      ansible.builtin.apt_repository:
-        repo: "deb [signed-by=/usr/share/keyrings/jfrog-archive-keyring.gpg] https://releases.jfrog.io/artifactory/artifactory-debs {{ ansible_distribution_release | lower }} main"
-        state: present
+- name: Install databse driver
+  include: 04-install-db-driver.yml
 
-    - name: Update apt cache
-      ansible.builtin.apt:
-        update_cache: yes
-
-- name: Install JFrog Artifactory OSS
-  when: ansible_pkg_mgr in ["apt"]
-  ansible.builtin.apt:
-    name: jfrog-artifactory-oss
-    state: present
-
-- name: Ensure artifactory_file_store_dir exists
-  ansible.builtin.file:
-    path: "{{ artifactory_file_store_dir }}"
-    state: directory
-    mode: "0755"
-    owner: artifactory
-    group: artifactory
-
-- name: Configure artifactory
-  ansible.builtin.template:
-    src: binarystore.xml.j2
-    dest: "{{ artifactory_home }}/binarystore.xml"
-    mode: "0644"
-    owner: artifactory
-    group: artifactory
-  notify:
-    - Restart artifactory
-
-- name: Set ownership for artifactory_logs
-  ansible.builtin.file:
-    path: "{{ artifactory_logs }}"
-    state: directory
-    mode: "0755"
-    owner: artifactory
-    group: artifactory
-
-- name: Start and enable artifactory
-  ansible.builtin.service:
-    name: artifactory
-    state: started
-    enabled: true
+- name: Set up Artifactory as linux service
+  include: 05-install-service.yml

@@ -1,9 +1,53 @@
 ---
-# defaults file for artifactory
 
-# The location where Artifactory should store data.
-artifactory_file_store_dir: /data
+artifactory_version: "7.3.2" # To check up latest version just make GET request: https://api.bintray.com/content/jfrog/artifactory/org/artifactory/oss/jfrog-artifactory-oss/$latest/jfrog-artifactory-oss-$latest-linux.tar.gz;bt_package=jfrog-artifactory-oss
 
-# The type of installation of artifactory.
-# Choose from "oss", "jcr" or "cpp-ce".
-artifactory_flavour: oss
+artifactory_username: "admin" # Admin web account (templates/bootstrap.creds)
+artifactory_password: "password" # Admin web account (templates/bootstrap.creds)
+
+artifactory_port: 8081 # Main port when access Artifactory with browser (templates/system.yaml)
+artifactory_ui_port: 8082 # Web UI port for working with Artifactory (templates/system.yaml)
+
+artifactory_corp_maven_repo: 'com.acme.corp' # Maven repo will be created by default (templates/artifactory.config.import.xml)
+
+jfrog_home: "/opt/jfrog" # (tasks/)
+artifactory_home: "{{ jfrog_home }}/artifactory" # (tasks/)
+
+artifactory_java_max_mb: 512
+artifactory_java_opts: "-Xms{{ artifactory_java_max_mb }}m -Xmx{{ artifactory_java_max_mb }}m" # (templates/system.yaml)
+
+# templates/system.yaml:shared:database
+artifactory_database_type: 'default derby' # | derby | postgresql | mysql | oracle | mssql | mariadb
+## Showcases for other databases:
+# Non-default Derby
+# artifactory_database_type: 'derby'
+# artifactory_database: "{{ artifactory_home }}/var/data"
+# artifactory_database_user: "{{ artifactory_username }}"
+# artifactory_database_password: "{{ artifactory_password }}"
+# Postgres: https://www.jfrog.com/confluence/display/JFROG/PostgreSQL
+# artifactory_database_type: 'postgresql'
+# artifactory_database: 'localhost:5432/artifactory'
+# artifactory_database_user: "{{ artifactory_username }}"
+# artifactory_database_password: "{{ artifactory_password }}"
+# MySQL: https://www.jfrog.com/confluence/display/JFROG/MySQL
+# artifactory_database_type: 'mysql'
+# artifactory_database: 'localhost:3306/artifactory?characterEncoding=UTF-8&elideSetAutoCommits=true&useSSL=false'
+# artifactory_database_user: "{{ artifactory_username }}"
+# artifactory_database_password: "{{ artifactory_password }}"
+# Oracle: https://www.jfrog.com/confluence/display/JFROG/Oracle
+# artifactory_database_type: 'oracle'
+# artifactory_database: 'thin:@localhost:1521:artifactory'
+# artifactory_database_user: "{{ artifactory_username }}"
+# artifactory_database_password: "{{ artifactory_password }}"
+# MS SQL: https://www.jfrog.com/confluence/display/JFROG/Microsoft+SQL+Server
+# artifactory_database_type: 'mssql'
+# artifactory_database: 'localhost:1433;databaseName=artifactory;sendStringParametersAsUnicode=false;applicationName=Artifactory Binary Repository'
+# artifactory_database_user: "{{ artifactory_username }}"
+# artifactory_database_password: "{{ artifactory_password }}"
+# MariaDB: https://www.jfrog.com/confluence/display/JFROG/MariaDB
+# artifactory_database_type: 'mariadb'
+# artifactory_database: 'localhost:3306/artifactory?characterEncoding=UTF-8&elideSetAutoCommits=true&useSSL=false'
+# artifactory_database_user: "{{ artifactory_username }}"
+# artifactory_database_password: "{{ artifactory_password }}"
+
+ansible_become_method: sudo

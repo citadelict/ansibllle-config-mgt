@@ -1,21 +1,23 @@
----
 galaxy_info:
-  author: robertdebock
   role_name: artifactory
-  description: Install and configure artifactory on your system.
-  license: Apache-2.0
-  company: none
-  min_ansible_version: "2.12"
 
-  platforms:
-    - name: EL
-      versions:
-        - "8"
-        - "9"
+  author: Eugene Krivosheyev
+  company: ekr
+  description: The simpliest Ansible role for JFrog Artifactory OSS 7 hosts that works with Ubuntu 19.10.
+  issue_tracker_url: https://github.com/eugene-krivosheyev/ansible-artifactory-role/issues
+  license: BSD
 
   galaxy_tags:
+    - jfrog
     - artifactory
-    - server
-    - development
+    - oss
+    - ubuntu
+    - eoan
 
+  platforms:
+  - name: Ubuntu
+    versions:
+    - eoan
+
+  min_ansible_version: 2.9
 dependencies: []
