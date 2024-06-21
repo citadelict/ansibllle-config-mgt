@@ -10,24 +10,22 @@
     id: 6B219DCCD7639232
     state: absent
 
-- name: Update apt cache
-  ansible.builtin.apt:
-    update_cache: yes
-
-- name: Install python3-update-manager
+- name: Ensure python3-update-manager is installed from focal-updates
   ansible.builtin.apt:
     name: python3-update-manager
     state: latest
+    default_release: focal-updates
+    update_cache: yes
 
 - name: Add JFrog GPG key
-  ansible.builtin.apt_key:
-    url: https://releases.jfrog.io/artifactory/api/gpg/key/public
-    state: present
+  ansible.builtin.command: |
+    wget -qO - https://releases.jfrog.io/artifactory/api/gpg/key/public | sudo apt-key add -
+  become: yes
 
 - name: Add JFrog repository
-  ansible.builtin.apt_repository:
-    repo: "deb https://releases.jfrog.io/artifactory/artifactory-debs bionic main"
-    state: present
+  ansible.builtin.command: |
+    echo "deb https://jfrog.bintray.com/artifactory-debs focal main" | sudo tee /etc/apt/sources.list.d/jfrog.list
+  become: yes
 
 - name: Update apt cache after adding JFrog repository
   ansible.builtin.apt:
@@ -45,9 +43,8 @@
     enabled: yes
 
 - name: Check status of artifactory service
-  ansible.builtin.shell: systemctl status artifactory.service
-  args:
-    executable: /bin/bash
+  ansible.builtin.command: systemctl status artifactory.service
+  become: yes
   register: result
 
 - name: Display artifactory service status
