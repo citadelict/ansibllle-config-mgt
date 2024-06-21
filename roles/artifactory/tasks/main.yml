@@ -1,6 +1,17 @@
 ---
 # tasks file for installing Artifactory
 
+- name: Change hostname to Artifactory
+  ansible.builtin.hostname:
+    name: Artifactory
+
+- name: Update /etc/hosts with the new hostname
+  ansible.builtin.lineinfile:
+    path: /etc/hosts
+    regexp: '^127\.0\.1\.1\s+.*'
+    line: '127.0.1.1 Artifactory'
+    state: present
+
 - name: Update Ubuntu OS
   ansible.builtin.apt:
     update_cache: yes
