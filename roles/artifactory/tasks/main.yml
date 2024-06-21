@@ -1,9 +1,9 @@
-# tasks file for artifactory
+# tasks file for artifactory on Ubuntu
 
-- name: Update and install dependencies
+- name: Update apt cache and install dependencies
   ansible.builtin.apt:
     name: 
-      - openjdk-17-jre
+      - openjdk-11-jdk
       - wget
       - unzip
     state: present
@@ -12,34 +12,38 @@
 - name: Configuring java path
   ansible.builtin.template:
     src: templates/bash-profile.j2
-    dest: ~/.bash_profile
+    dest: /home/ubuntu/.bash_profile
+    owner: ubuntu
+    group: ubuntu
+    mode: '0644'
 
 - name: Reload the .bash_profile
-  ansible.builtin.shell: source ~/.bash_profile
+  ansible.builtin.shell: source /home/ubuntu/.bash_profile
   args:
     executable: /bin/bash
 
-- name: Add the JFrog public GPG key
-  ansible.builtin.command: wget -qO - https://releases.jfrog.io/artifactory/api/gpg/key/public | apt-key add -
+- name: Add the JFrog GPG key
+  ansible.builtin.apt_key:
+    url: https://releases.jfrog.io/artifactory/api/gpg/key/public
+    state: present
 
-- name: Determine your distribution
-  ansible.builtin.shell: lsb_release -cs
-  register: distro
+- name: Add the JFrog repository
+  ansible.builtin.apt_repository:
+    repo: deb https://releases.jfrog.io/artifactory/artifactory-debs stable main
+    state: present
+    filename: 'jfrog-artifactory'
 
-- name: Add JFrog Artifactory repository to sources.list
-  ansible.builtin.shell: echo "deb https://releases.jfrog.io/artifactory/artifactory-debs {{ distro.stdout }} main" | tee -a /etc/apt/sources.list
-
-- name: Update apt cache
+- name: Update apt cache after adding JFrog repository
   ansible.builtin.apt:
     update_cache: yes
 
-- name: Install JFrog Artifactory
+- name: Install artifactory
   ansible.builtin.apt:
     name: jfrog-artifactory-oss
     state: present
 
 - name: Start and enable artifactory
-  ansible.builtin.service:
+  ansible.builtin.systemd:
     name: artifactory
     state: started
     enabled: yes
