@@ -20,6 +20,13 @@
     content: "deb [signed-by=/usr/share/keyrings/jfrog-archive-keyring.gpg] https://releases.jfrog.io/artifactory/artifactory-debs bionic main"
     dest: /etc/apt/sources.list.d/jfrog.list
 
+- name: Ensure correct permissions on keyring
+  ansible.builtin.file:
+    path: /usr/share/keyrings/jfrog-archive-keyring.gpg
+    owner: root
+    group: root
+    mode: '0644'
+
 - name: Update apt cache again
   ansible.builtin.apt:
     update_cache: yes
