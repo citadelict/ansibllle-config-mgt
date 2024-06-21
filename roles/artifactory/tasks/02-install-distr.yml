@@ -1,51 +1,46 @@
 ---
+# tasks file for installing Artifactory distribution
 
 - name: Create user to run Artifactory
-  tags: user
-  user:
+  ansible.builtin.user:
     name: "{{ artifactory_os_user_name }}"
-    create_home: no
+    comment: "User to run Artifactory"
+    shell: /bin/bash
+    system: yes
 
 - name: Create JFROG_HOME folder
-  tags: env
-  file: 
+  ansible.builtin.file:
     path: "{{ jfrog_home }}"
     state: directory
     owner: "{{ artifactory_os_user_name }}"
-    group: "{{ artifactory_os_user_name }}"
-    recurse: yes
+    group: "{{ artifactory_group }}"
+    mode: "0755"
 
 - name: Download and unarchive Artifactory distr
-  tags: distr
-  unarchive:
-    creates: "{{ artifactory_home_full }}" # Skip download and unzip if already done
-    src: "{{ artifactory_url }}"
-    dest: "{{ jfrog_home }}"
-    owner: "{{ artifactory_os_user_name }}"
-    group: "{{ artifactory_os_user_name }}"
-    validate_certs: no
-    copy: no
-  retries: 3
+  block:
+    - name: Download Artifactory
+      ansible.builtin.get_url:
+        url: "{{ artifactory_url }}"
+        dest: "/tmp/{{ artifactory_file_version_platform }}"
+        mode: '0644'
+      register: download_artifactory
+      retries: 3
+      delay: 10
+      until: download_artifactory is succeeded
 
-- name: Make Artifactory home link
-  tags: distr
-  file:
-    src: "{{ artifactory_home_full }}"
-    dest: "{{ artifactory_home }}"
-    owner: "{{ artifactory_os_user_name }}"
-    group: "{{ artifactory_os_user_name }}"
-    state: link
+    - name: Check if the archive file is not empty
+      ansible.builtin.stat:
+        path: "/tmp/{{ artifactory_file_version_platform }}"
+      register: artifactory_archive
 
-- name: Persist JFROG_HOME environment variable
-  tags: env
-  lineinfile: 
-    path: '/etc/environment'
-    line: "JFROG_HOME={{ jfrog_home }}"
-    create: yes
+    - name: Fail if the archive is empty
+      ansible.builtin.fail:
+        msg: "The downloaded Artifactory archive is empty."
+      when: artifactory_archive.stat.size == 0
 
-- name: Persist ARTIFACTORY_HOME environment variable
-  tags: env
-  lineinfile: 
-    path: '/etc/environment'
-    line: "ARTIFACTORY_HOME={{ artifactory_home }}"
-    create: yes
+    - name: Extract Artifactory
+      ansible.builtin.unarchive:
+        src: "/tmp/{{ artifactory_file_version_platform }}"
+        dest: "{{ jfrog_home }}"
+        remote_src: yes
+  when: artifactory_archive.stat.size != 0

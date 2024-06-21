@@ -1,6 +1,0 @@
-- src: /Users/eugene/Projects/ansible-artifactory-role
-  scm: git
-  name: eugene_krivosheyev.artifactory
-  version: master
-
-- src: geerlingguy.postgresql
