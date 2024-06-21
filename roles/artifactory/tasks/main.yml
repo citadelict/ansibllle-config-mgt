@@ -10,14 +10,15 @@
     name: gnupg2
     state: present
 
-- name: Add JFrog GPG key
-  ansible.builtin.shell: wget -qO - https://api.bintray.com/orgs/jfrog/keys/gpg/public.key | apt-key add -
-  register: gpg_key
-  changed_when: "'OK' in gpg_key.stdout"
+- name: Download JFrog GPG key
+  ansible.builtin.get_url:
+    url: https://releases.jfrog.io/artifactory/api/gpg/key/public
+    dest: /usr/share/keyrings/jfrog-archive-keyring.gpg
 
 - name: Add JFrog Artifactory repository
-  ansible.builtin.command:
-    cmd: echo "deb https://jfrog.bintray.com/artifactory-debs bionic main" | tee /etc/apt/sources.list.d/jfrog.list
+  ansible.builtin.copy:
+    content: "deb [signed-by=/usr/share/keyrings/jfrog-archive-keyring.gpg] https://releases.jfrog.io/artifactory/artifactory-debs bionic main"
+    dest: /etc/apt/sources.list.d/jfrog.list
 
 - name: Update apt cache again
   ansible.builtin.apt:
