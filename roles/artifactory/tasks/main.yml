@@ -1,44 +1,65 @@
+---
 # tasks file for artifactory on Ubuntu
 
 - name: Update apt cache
   ansible.builtin.apt:
     update_cache: yes
-
-- name: Ensure python3-update-manager is installed from focal-updates
-  ansible.builtin.command:
-    cmd: apt-get install -y python3-update-manager
   become: yes
 
 - name: Add JFrog GPG key
   ansible.builtin.shell: |
-    wget -qO - https://releases.jfrog.io/artifactory/api/gpg/key/public | apt-key add -
+    curl -fsSL https://releases.jfrog.io/artifactory/api/gpg/key/public | gpg --dearmor -o /usr/share/keyrings/jfrog-public.gpg
   become: yes
 
 - name: Add JFrog repository
   ansible.builtin.shell: |
-    echo "deb https://jfrog.bintray.com/artifactory-debs focal main" | tee /etc/apt/sources.list.d/jfrog.list
+    echo "deb [signed-by=/usr/share/keyrings/jfrog-public.gpg] https://releases.jfrog.io/artifactory/artifactory-debs xenial main" | tee /etc/apt/sources.list.d/artifactory.list
   become: yes
 
 - name: Update apt cache after adding JFrog repository
   ansible.builtin.apt:
     update_cache: yes
+  become: yes
 
 - name: Install JFrog Artifactory OSS
   ansible.builtin.apt:
     name: jfrog-artifactory-oss
     state: present
+  become: yes
 
-- name: Enable and start artifactory service
+- name: Start Artifactory service
   ansible.builtin.systemd:
     name: artifactory
     state: started
-    enabled: yes
+  become: yes
 
-- name: Check status of artifactory service
-  ansible.builtin.command: systemctl status artifactory.service
+- name: Enable Artifactory service
+  ansible.builtin.systemd:
+    name: artifactory
+    enabled: yes
+  become: yes
+
+- name: Check status of Artifactory service
+  ansible.builtin.command:
+    cmd: systemctl status artifactory.service
   become: yes
   register: result
 
-- name: Display artifactory service status
-  debug:
-    var: result.stdout
+- name: Print the status of Artifactory service
+  ansible.builtin.debug:
+    msg: "{{ result.stdout }}"
+
+# - name: Tail the Artifactory log 
+#   ansible.builtin.shell: tail -f /var/opt/jfrog/artifactory/log/artifactory-service.log
+#   become: yes
+#   async: 30
+#   poll: 0
+#   register: tail_result
+
+# - name: Wait for tail to complete (optional)
+#   ansible.builtin.async_status:
+#     jid: "{{ tail_result.ansible_job_id }}"
+#   register: job_result
+#   until: job_result.finished
+#   retries: 30
+#   delay: 1
