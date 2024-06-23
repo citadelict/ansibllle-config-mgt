@@ -9,8 +9,8 @@
 # ansible_user=ubuntu
 # ansible_python_interpreter=/usr/bin/python
 
-[db]
-172.31.24.250 ansible_ssh_user=ubuntu
+# [db]
+# 172.31.24.250 ansible_ssh_user=ubuntu
 
 [todo]
-172.31.95.148 ansible_ssh_user='ec2-user'
+172.31.29.163 ansible_ssh_user='ec2-user'
