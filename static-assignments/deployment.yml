@@ -1,10 +1,10 @@
 ---
-- name: Deploying the PHP Applicaion to Dev Enviroment
+- name: Deploying the PHP Application to Dev Environment
   become: true
   hosts: todo
 
   tasks:
-    - name: install remi and rhel repo
+    - name: Install remi and rhel repo
       ansible.builtin.yum:
         name: 
           - https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
@@ -12,19 +12,18 @@
           - http://rpms.remirepo.net/enterprise/remi-release-9.rpm
         disable_gpg_check: yes
 
-    
-    - name: install httpd on the webserver
+    - name: Install httpd on the webserver
       ansible.builtin.yum:
         name: httpd
         state: present
 
-    - name: ensure httpd is started and enabled
+    - name: Ensure httpd is started and enabled
       ansible.builtin.service:
         name: httpd
         state: started 
         enabled: yes
       
-    - name: install PHP
+    - name: Install PHP
       ansible.builtin.yum:
         name:
           - php 
@@ -42,43 +41,36 @@
         enablerepo: php:remi-7.4
         state: present
     
-    - name: ensure php-fpm is started and enabled
+    - name: Ensure php-fpm is started and enabled
       ansible.builtin.service:
         name: php-fpm
         state: started 
         enabled: yes
 
-    - name: install Zip on the webserver
+    - name: Install zip on the webserver
       ansible.builtin.yum:
         name: zip
         state: present
 
     - name: Download the artifact
-      get_url:
-        url: http://18.192.100.8:8082/artifactory/Todo-dev-local/php-todo/php-todo.zip
-        dest: /home/ec2-user/
+      ansible.builtin.get_url:
+        url: http://18.192.100.8:8082/artifactory/Todo-dev/php-todo.zip
+        dest: /home/ec2-user/php-todo.zip
         url_username: admin
         url_password: guessWhat232@
 
-    - name: unzip the artifacts
+    - name: Unzip the artifacts
       ansible.builtin.unarchive:
-       src: /home/ec2-user/php-todo
-       dest: /home/ec2-user/
-       remote_src: yes
-
-    - name: deploy the code
-      ansible.builtin.copy:
-        src: /home/ec2-user/var/lib/jenkins/workspace/php-todo_main/
+        src: /home/ec2-user/php-todo.zip
         dest: /var/www/html/
-        force: yes
         remote_src: yes
 
-    - name: remove nginx default page
+    - name: Remove default nginx page
       ansible.builtin.file:
         path: /etc/httpd/conf.d/welcome.conf
         state: absent
 
-    - name: restart httpd
+    - name: Restart httpd
       ansible.builtin.service:
         name: httpd
         state: restarted
