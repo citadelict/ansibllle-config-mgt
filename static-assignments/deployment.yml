@@ -48,6 +48,11 @@
         state: started 
         enabled: yes
 
+    - name: install Zip on the webserver
+      ansible.builtin.yum:
+        name: zip
+        state: present
+
     - name: Download the artifact
       get_url:
         url: http://18.192.100.8:8082/artifactory/Todo-dev-local/php-todo/php-todo.zip
