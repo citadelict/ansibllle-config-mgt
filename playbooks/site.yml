@@ -11,9 +11,9 @@
 #   tags:
 #     - db
 
-# - import_playbook: ../static-assignments/uat-webservers.yml
-#   tags:
-#     - webserver
+- import_playbook: ../static-assignments/uat-webservers.yml
+  tags:
+    - webserver
 
 # - import_playbook: ../static-assignments/loadbalancers.yml
 #   when: load_balancer_is_required
@@ -24,6 +24,6 @@
 #   tags:
 #     - artifactory
 
-- import_playbook: ../static-assignments/deployment.yml
-  tags:
-    - deployment
+# - import_playbook: ../static-assignments/deployment.yml
+#   tags:
+#     - deployment
