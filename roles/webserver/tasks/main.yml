@@ -116,7 +116,7 @@
   become_user: root
   ansible.builtin.unarchive:
     src: /home/ec2-user/php-todo.zip
-    dest: /home/ec2-user/php-todo/
+    dest: /home/ec2-user/
     remote_src: yes
 
 # Deploy the code
