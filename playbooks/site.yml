@@ -7,9 +7,9 @@
       tags:
         - always
 
-# - import_playbook: ../static-assignments/db-servers.yml
-#   tags:
-#     - db
+- import_playbook: ../static-assignments/db-servers.yml
+  tags:
+    - db
 
 # - import_playbook: ../static-assignments/uat-webservers.yml
 #   tags:
@@ -20,6 +20,6 @@
 #   tags:
 #     - loadbalancer
 
-- import_playbook: ../static-assignments/artifactory.yml
-  tags:
-    - artifactory
+# - import_playbook: ../static-assignments/artifactory.yml
+#   tags:
+#     - artifactory
