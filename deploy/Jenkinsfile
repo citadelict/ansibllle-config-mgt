@@ -8,7 +8,6 @@ pipeline {
 
   parameters {
     string(name: 'inventory', defaultValue: 'dev', description: 'The inventory file for the environment to deploy configuration')
-    string(name: 'ansible_tags', defaultValue: 'deployment', description: 'Ansible tags to run specific roles or tasks')
   }
 
   stages {

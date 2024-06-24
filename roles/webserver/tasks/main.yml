@@ -47,19 +47,18 @@
   become_user: root
   ansible.builtin.yum:
     name:
-      - php
-      - php-opcache
-      - php-gd
-      - php-curl
-      - php-mysqlnd
+      - php7.4
+      - php7.4-opcache
+      - php7.4-gd
+      - php7.4-curl
+      - php7.4-mysqlnd
       - unzip
-      - php-common
-      - php-mbstring
-      - php-opcache
-      - php-intl
-      - php-xml
-      - php-fpm
-      - php-json
+      - php7.4-common
+      - php7.4-mbstring
+      - php7.4-intl
+      - php7.4-xml
+      - php7.4-fpm
+      - php7.4-json
     state: present
     enablerepo: remi-7.4
 
@@ -69,7 +68,7 @@
   become: true
   become_user: root
   ansible.builtin.service:
-    name: php-fpm
+    name: php7.4-fpm
     state: started
 
 # Enable PHP-FPM service
@@ -78,7 +77,7 @@
   become: true
   become_user: root
   ansible.builtin.service:
-    name: php-fpm
+    name: php7.4-fpm
     enabled: true
 
 # Set SELinux boolean for httpd_execmem
@@ -104,20 +103,23 @@
   become: true
   become_user: root
   ansible.builtin.get_url:
-    url: http://18.192.100.8:8082/artifactory/Todo-dev/php-todo.zip
+    url: http://3.76.225.235:8082/artifactory/Todo-dev/php-todo.zip
     dest: /home/ec2-user/php-todo.zip
     url_username: admin
     url_password: guessWhat232@
 
 # Unzip the artifacts
 - name: Unzip the artifacts
-  remote_user: ec2-user
-  become: true
-  become_user: root
-  ansible.builtin.unarchive:
-    src: /home/ec2-user/php-todo.zip
-    dest: /home/ec2-user/
-    remote_src: yes
+   ansible.builtin.unarchive:
+     src: /home/ec2-user/php-todo.zip
+     dest: /home/ec2-user/
+     remote_src: yes
+   become: 
+   
+ - name: Run chmod on /var/www/html
+   ansible.builtin.command:
+     cmd: sudo chown -R $USER:$USER /var/www/html
+   become: yes
 
 # Deploy the code
 - name: Deploy the code
@@ -129,6 +131,19 @@
     dest: /var/www/html/
     force: yes
     remote_src: yes
+
+ - name: Delete the zip file after unzipping
+   ansible.builtin.file:
+     path: /home/ec2-user/php-todo.zip
+     state: absent
+   become: yes
+ 
+ - name: Delete the unzipped files after copying
+   ansible.builtin.file:
+     path: /home/ec2-user/var/
+     state: absent
+   become: yes
+
 
 # Remove nginx default page
 - name: Remove nginx default page

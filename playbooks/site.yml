@@ -25,5 +25,5 @@
 #     - artifactory
 
 - import_playbook: ../static-assignments/deployment.yml
-  tags:
-   - deployment
+  # tags:
+  #  - deployment
