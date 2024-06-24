@@ -26,7 +26,7 @@
   remote_user: ec2-user
   become: true
   ansible.builtin.command:
-    cmd: sudo dnf module reset php -y
+    cmd: sudo dnf module install php:remi-7.4 -y
 
 # Enable PHP 7.4 module
 - name: Enable PHP 7.4 module
@@ -41,18 +41,17 @@
   become: true
   ansible.builtin.yum:
     name:
-      - php7.4
-      - php7.4-opcache
-      - php7.4-gd
-      - php7.4-curl
-      - php7.4-mysqlnd
-      - unzip
-      - php7.4-common
-      - php7.4-mbstring
-      - php7.4-intl
-      - php7.4-xml
-      - php7.4-fpm
-      - php7.4-json
+      - php
+      - php-opcache
+      - php-gd
+      - php-curl
+      - php-mysqlnd
+      - php-common
+      - php-mbstring
+      - php-intl
+      - php-xml
+      - php-fpm
+      - php-json
     state: present
     enablerepo: remi-7.4
 
@@ -61,7 +60,7 @@
   remote_user: ec2-user
   become: true
   ansible.builtin.service:
-    name: php7.4-fpm
+    name: php-fpm
     state: started
 
 # Enable PHP-FPM service
@@ -69,7 +68,7 @@
   remote_user: ec2-user
   become: true
   ansible.builtin.service:
-    name: php7.4-fpm
+    name: php-fpm
     enabled: true
 
 # Set SELinux boolean for httpd_execmem
