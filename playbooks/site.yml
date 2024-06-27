@@ -28,4 +28,6 @@
 #   tags:
 #    - deployment
 
-- import_playbook: ../static-assignments/sonarqube.yml
+# - import_playbook: ../static-assignments/sonarqube.yml
+
+- import_playbook: ../static-assignments/wireshark.yml

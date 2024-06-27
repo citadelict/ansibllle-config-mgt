@@ -1,0 +1,5 @@
+---
+- hosts: wireshark
+  roles:
+     - wireshark
+  become: true
