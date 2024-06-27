@@ -1,51 +1,44 @@
+---
+# Install Apache
 - name: Install Apache
   remote_user: ec2-user
   become: true
-  become_user: root
   ansible.builtin.yum:
-    name: "httpd"
+    name: httpd
     state: present
 
-- name: Install Git
-  remote_user: ec2-user
-  become: true
-  become_user: root
-  ansible.builtin.yum:
-    name: "git"
-    state: present
-
+# Install EPEL release
 - name: Install EPEL release
   remote_user: ec2-user
   become: true
-  become_user: root
   ansible.builtin.command:
     cmd: sudo dnf install https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm -y
 
+# Install dnf-utils and Remi repository
 - name: Install dnf-utils and Remi repository
   remote_user: ec2-user
   become: true
-  become_user: root
   ansible.builtin.command:
     cmd: sudo dnf install dnf-utils http://rpms.remirepo.net/enterprise/remi-release-9.rpm -y
 
+# Reset PHP module
 - name: Reset PHP module
   remote_user: ec2-user
   become: true
-  become_user: root
   ansible.builtin.command:
-    cmd: sudo dnf module reset php -y
+    cmd: sudo dnf module install php:remi-7.4 -y
 
+# Enable PHP 7.4 module
 - name: Enable PHP 7.4 module
   remote_user: ec2-user
   become: true
-  become_user: root
   ansible.builtin.command:
     cmd: sudo dnf module enable php:remi-7.4 -y
 
+# Install PHP and extensions
 - name: Install PHP and extensions
   remote_user: ec2-user
   become: true
-  become_user: root
   ansible.builtin.yum:
     name:
       - php
@@ -53,66 +46,120 @@
       - php-gd
       - php-curl
       - php-mysqlnd
+      - php-common
+      - php-mbstring
+      - php-intl
+      - php-xml
+      - php-fpm
+      - php-json
     state: present
+    enablerepo: remi-7.4
 
-- name: Install MySQL client
-  remote_user: ec2-user
-  become: true
-  become_user: root
-  ansible.builtin.yum:
-    name: "mysql"
-    state: present
-
+# Start PHP-FPM service
 - name: Start PHP-FPM service
   remote_user: ec2-user
   become: true
-  become_user: root
   ansible.builtin.service:
     name: php-fpm
     state: started
 
+# Enable PHP-FPM service
 - name: Enable PHP-FPM service
   remote_user: ec2-user
   become: true
-  become_user: root
   ansible.builtin.service:
     name: php-fpm
     enabled: true
 
+# Set SELinux boolean for httpd_execmem
 - name: Set SELinux boolean for httpd_execmem
   remote_user: ec2-user
   become: true
-  become_user: root
   ansible.builtin.command:
     cmd: sudo setsebool -P httpd_execmem 1
 
-- name: Clone a repo
-  remote_user: ec2-user
-  become: true
-  become_user: root
-  ansible.builtin.git:
-    repo: https://github.com/citadelict/tooling.git
-    dest: /var/www/html
-    force: yes
-
-- name: Copy HTML content to one level up
-  remote_user: ec2-user
-  become: true
-  become_user: root
-  command: cp -r /var/www/html/html/ /var/www/
-
+# Start httpd service, if not started
 - name: Start httpd service, if not started
   remote_user: ec2-user
   become: true
-  become_user: root
   ansible.builtin.service:
     name: httpd
     state: started
 
-- name: Recursively remove /var/www/html/html directory
+# Download the artifact
+- name: Download the artifact
   remote_user: ec2-user
   become: true
-  become_user: root
+  ansible.builtin.get_url:
+    url: http://3.76.225.235:8082/artifactory/Todo-dev/php-todo.zip
+    dest: /home/ec2-user/php-todo.zip
+    url_username: admin
+    url_password: guessWhat232@
+
+# Unzip the artifacts
+- name: Unzip the artifacts
+  ansible.builtin.unarchive:
+    src: /home/ec2-user/php-todo.zip
+    dest: /home/ec2-user/
+    remote_src: yes
+  become: true
+
+# Run chmod on /var/www/html
+- name: Run chmod on /var/www/html
+  ansible.builtin.command:
+    cmd: sudo chown -R $USER:$USER /var/www/html
+  become: true
+
+# Deploy the code
+- name: Deploy the code
+  remote_user: ec2-user
+  become: true
+  ansible.builtin.copy:
+    src:  /home/ec2-user/var/lib/jenkins/workspace/php-pipeline/.
+    dest: /var/www/html/
+    force: yes
+    remote_src: yes
+
+# Delete the zip file after unzipping
+- name: Delete the zip file after unzipping
   ansible.builtin.file:
-    path: /var/www/html/html
+    path: /home/ec2-user/php-todo.zip
     state: absent
+  become: true
+
+# Delete the unzipped files after copying
+- name: Delete the unzipped files after copying
+  ansible.builtin.file:
+    path: /home/ec2-user/php-todo/
+    state: absent
+  become: true
+
+# Remove nginx default page
+- name: Remove nginx default page
+  remote_user: ec2-user
+  become: true
+  ansible.builtin.file:
+    path: /etc/httpd/conf.d/welcome.conf
+    state: absent
+
+# Restart httpd
+- name: Restart httpd
+  remote_user: ec2-user
+  become: true
+  ansible.builtin.service:
+    name: httpd
+    state: restarted
+
+# Verify PHP version
+- name: Verify PHP version
+  remote_user: ec2-user
+  become: true
+  ansible.builtin.command: php -v
+  register: php_version
+
+# Display PHP version
+- name: Display PHP version
+  remote_user: ec2-user
+  become: true
+  ansible.builtin.debug:
+    msg: "{{ php_version.stdout }}"

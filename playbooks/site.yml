@@ -20,6 +20,12 @@
 #   tags:
 #     - loadbalancer
 
-- import_playbook: ../static-assignments/artifactory.yml
-  tags:
-    - artifactory
+# - import_playbook: ../static-assignments/artifactory.yml
+#   tags:
+#     - artifactory
+
+# - import_playbook: ../static-assignments/deployment.yml
+#   tags:
+#    - deployment
+
+- import_playbook: ../static-assignments/sonarqube.yml

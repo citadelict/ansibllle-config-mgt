@@ -1,10 +1,10 @@
 mysql_root_password:
 mysql_databases:
-  - name: tooling
+  - name: homestead
     encoding: latin1
     collation: latin1_general_ci
 mysql_users:
-  - name: admin
-    host: "172.31.16.0/20"
-    password: admin
-    priv: "tooling.*:ALL"
+  - name: homestead
+    host: "%"
+    password: sePret^i
+    priv: "*.*:ALL"

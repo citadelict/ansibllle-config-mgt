@@ -8,7 +8,6 @@ pipeline {
 
   parameters {
     string(name: 'inventory', defaultValue: 'dev', description: 'The inventory file for the environment to deploy configuration')
-    string(name: 'ansible_tags', defaultValue: 'webserver', description: 'Ansible tags to run specific roles or tasks')
   }
 
   stages {
@@ -37,11 +36,12 @@ pipeline {
       steps {
         script {
           def hosts = [
+             [group: 'sonarqube', ip: '172.31.20.50', user: 'ubuntu']
             // [group: 'tooling', ip: '172.31.30.46', user: 'ec2-user'],
-            // [group: 'tooling', ip: '172.31.25.209', user: 'ec2-user'],
+            // [group: 'todo', ip: '172.31.29.163', user: 'ec2-user'],
             // [group: 'nginx', ip: '172.31.26.108', user: 'ubuntu'],
             // [group: 'db', ip: '172.31.24.250', user: 'ubuntu']
-            [group: 'artifactory', ip: '172.31.30.88', user: 'ubuntu'],
+            // [group: 'artifactory', ip: '172.31.30.88', user: 'ubuntu'],
           ]
           for (host in hosts) {
             sshagent(['private-key']) {
@@ -62,7 +62,7 @@ pipeline {
             installation: 'ansible',
             inventory: "${WORKSPACE}/inventory/${params.inventory}.yml",
             playbook: "${WORKSPACE}/playbooks/site.yml",
-            tags: "${params.ansible_tags}"
+            // tags: "${params.ansible_tags}"
           )
         }
       }
